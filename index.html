@@ -3,28 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OncoVision AI | Healthcare Cytological Tumour Diagnostic Intelligence & Decision Boundary Studio</title>
-  <meta name="description" content="MACSE504 Machine Learning Course Based Design Project: Healthcare Analytics for Malignant vs. Benign Tumour Classification on the UCI Diagnostic Dataset by Vedant Nimkar (26MML0045).">
+  <title>OncoVision AI | Interactive Cytological Tumour Intelligence & Decision Boundary Studio</title>
+  <meta name="description" content="MACSE504 Machine Learning Course Based Design Project: Interactive Healthcare Analytics for Malignant vs. Benign Tumour Classification by Vedant Nimkar (26MML0045). Powered by Apache ECharts.">
   
   <!-- Modern Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
+  <!-- Apache ECharts CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+
   <!-- Core Stylesheet -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="dark-theme">
 
-  <!-- Floating Ambient Glows -->
+  <!-- Ambient Glow Effects -->
   <div class="ambient-glow glow-1"></div>
   <div class="ambient-glow glow-2"></div>
   <div class="ambient-glow glow-3"></div>
 
-  <!-- Top Navigation Bar -->
+  <!-- Header Navigation -->
   <header class="app-header" id="appHeader">
     <div class="header-container">
       <div class="brand-block">
@@ -34,17 +37,17 @@
         <div class="brand-text">
           <div class="brand-title">
             <span class="gradient-text">OncoVision</span> AI
-            <span class="badge-pill live-badge"><span class="pulse-dot"></span> Live Clinical Simulator</span>
+            <span class="badge-pill live-badge"><span class="pulse-dot"></span> Interactive ECharts Studio</span>
           </div>
           <div class="brand-subtitle">MACSE504 Machine Learning &bull; Course Based Design Project &bull; Slot: E1+TE1</div>
         </div>
       </div>
 
       <nav class="nav-links">
-        <a href="#simulator" class="nav-link active"><i class="fa-solid fa-stethoscope"></i> Diagnostic Simulator</a>
-        <a href="#boundaries" class="nav-link"><i class="fa-solid fa-draw-polygon"></i> 2D Boundaries</a>
+        <a href="#simulator" class="nav-link active"><i class="fa-solid fa-stethoscope"></i> Simulator</a>
+        <a href="#boundaries" class="nav-link"><i class="fa-solid fa-draw-polygon"></i> 2D Latent Space</a>
         <a href="#benchmarks" class="nav-link"><i class="fa-solid fa-chart-line"></i> Model Benchmarks</a>
-        <a href="#multicollinearity" class="nav-link"><i class="fa-solid fa-diagram-project"></i> Collinearity & VIF</a>
+        <a href="#multicollinearity" class="nav-link"><i class="fa-solid fa-diagram-project"></i> Collinearity &amp; VIF</a>
         <a href="#features" class="nav-link"><i class="fa-solid fa-ranking-star"></i> Feature Attribution</a>
         <a href="#submission" class="nav-link"><i class="fa-solid fa-file-pdf"></i> Academic Report</a>
       </nav>
@@ -60,7 +63,7 @@
     </div>
   </header>
 
-  <!-- Hero & Metadata Banner -->
+  <!-- Hero Section -->
   <section class="hero-section" id="hero">
     <div class="hero-container">
       <div class="hero-grid">
@@ -70,49 +73,49 @@
             <span><strong>NIMKAR VEDANT GAJANAN</strong> &bull; Reg: <code>26MML0045</code> &bull; VIT Vellore</span>
           </div>
           <h1 class="hero-headline">
-            Healthcare Analytics &amp; Cytological <br/>
-            <span class="gradient-text-hero">Tumour Classification Studio</span>
+            Healthcare Cytological <br/>
+            <span class="gradient-text-hero">Tumour Diagnostic Intelligence</span>
           </h1>
           <p class="hero-lead">
-            Medical practitioners require not only clinical accuracy in classifying breast tumours but also 
-            <strong>transparent decision boundaries</strong>. This design project ingests cytological measurements from 
-            fine needle aspirates (FNA), constructs competing <strong>Linear SVM</strong>, <strong>RBF-Kernel SVM</strong>, 
-            and <strong>Decision Tree</strong> architectures, and critiques their structural complexity against feature importance rankings.
+            Medical practitioners require high accuracy in classifying breast tumours along with 
+            <strong>transparent decision boundaries</strong>. This design project evaluates cytological measurements from 
+            fine needle aspirates (FNA), constructing competing <strong>Linear SVM</strong>, <strong>RBF-Kernel SVM</strong>, 
+            and <strong>Decision Tree</strong> architectures with interactive <strong>Apache ECharts</strong> visualization.
           </p>
 
           <div class="hero-ctas">
             <a href="#simulator" class="btn-primary" id="btnExploreSimulator">
-              <i class="fa-solid fa-sliders"></i> Launch Interactive Predictor
+              <i class="fa-solid fa-sliders"></i> Launch Real-Time Simulator
             </a>
             <a href="#benchmarks" class="btn-secondary" id="btnViewBenchmarks">
-              <i class="fa-solid fa-chart-pie"></i> View ROC-AUC Benchmarks
+              <i class="fa-solid fa-chart-pie"></i> Explore ECharts Benchmarks
             </a>
             <a href="https://github.com/adminsharpcode/breast-cancer-diagnostic-analytics" target="_blank" class="btn-ghost" id="btnGitHubRepo">
-              <i class="fa-brands fa-github"></i> GitHub Source
+              <i class="fa-brands fa-github"></i> GitHub Code
             </a>
           </div>
         </div>
 
         <div class="hero-stats-card glass-panel">
           <div class="stats-header">
-            <div class="stats-title"><i class="fa-solid fa-microscope text-cyan"></i> Benchmark Highlights</div>
+            <div class="stats-title"><i class="fa-solid fa-microscope text-cyan"></i> Benchmark Scorecard</div>
             <div class="stats-dataset-tag">UCI Breast Cancer (569 Cases)</div>
           </div>
           <div class="stats-metrics-grid">
             <div class="stat-box glow-card">
               <div class="stat-number gradient-text" id="statAccuracy">98.25%</div>
               <div class="stat-label">Tuned RBF Accuracy</div>
-              <div class="stat-sub">112 / 114 Holdout Verified</div>
+              <div class="stat-sub">112 / 114 Test Set</div>
             </div>
             <div class="stat-box glow-card">
               <div class="stat-number text-emerald" id="statSensitivity">95.24%</div>
-              <div class="stat-label">Clinical Sensitivity (Recall)</div>
+              <div class="stat-label">Clinical Sensitivity</div>
               <div class="stat-sub">Only 2 False Negatives</div>
             </div>
             <div class="stat-box glow-card">
               <div class="stat-number text-amber" id="statSpecificity">100.0%</div>
               <div class="stat-label">Clinical Specificity</div>
-              <div class="stat-sub">0 False Alarms (0 FP)</div>
+              <div class="stat-sub">Zero False Alarms (0 FP)</div>
             </div>
             <div class="stat-box glow-card">
               <div class="stat-number text-purple" id="statAUC">0.9974</div>
@@ -122,17 +125,17 @@
             <div class="stat-box glow-card">
               <div class="stat-number text-sky" id="statLatency">7.50 &mu;s</div>
               <div class="stat-label">Inference Latency</div>
-              <div class="stat-sub">Edge Scanner Compatible</div>
+              <div class="stat-sub">Edge Scanner Ready</div>
             </div>
             <div class="stat-box glow-card">
               <div class="stat-number text-rose" id="statVIF">3,806</div>
               <div class="stat-label">Max Feature VIF</div>
-              <div class="stat-sub">Multicollinear Coupling</div>
+              <div class="stat-sub">Multicollinear Pairing</div>
             </div>
           </div>
           <div class="model-status-strip">
-            <span class="model-pill pill-rbf"><i class="fa-solid fa-crown text-gold"></i> Best: Tuned RBF SVM (C=5, &gamma;=0.01)</span>
-            <span class="model-pill pill-lin"><i class="fa-solid fa-shield-halved"></i> Linear SVM (C=0.5)</span>
+            <span class="model-pill pill-rbf"><i class="fa-solid fa-crown text-gold"></i> Tuned RBF SVM (C=5.0, &gamma;=0.01)</span>
+            <span class="model-pill pill-lin"><i class="fa-solid fa-shield-halved"></i> Tuned Linear SVM (C=0.5)</span>
             <span class="model-pill pill-dt"><i class="fa-solid fa-sitemap"></i> Pruned DT (d=6)</span>
           </div>
         </div>
@@ -149,14 +152,14 @@
         <div class="section-tag"><i class="fa-solid fa-microchip"></i> Real-Time Multi-Model Engine</div>
         <h2 class="section-title">Interactive Cytological Diagnostic Simulator</h2>
         <p class="section-desc">
-          Adjust cytological measurements or pick clinical presets. All three competing architectures—<strong>Decision Tree</strong>, 
-          <strong>Linear SVM</strong>, and <strong>RBF-Kernel SVM</strong>—evaluate the sample synchronously in real time.
+          Manipulate fine needle aspirate (FNA) cell measurements or choose clinical presets. All three competing architectures—<strong>Decision Tree</strong>, 
+          <strong>Linear SVM</strong>, and <strong>RBF-Kernel SVM</strong>—evaluate the specimen synchronously with live morphological radar comparison.
         </p>
       </div>
 
-      <!-- Preset Buttons -->
+      <!-- Presets Toolbar -->
       <div class="presets-row">
-        <span class="presets-label"><i class="fa-solid fa-clipboard-user"></i> Quick Clinical Profiles:</span>
+        <span class="presets-label"><i class="fa-solid fa-clipboard-user"></i> Quick Clinical Presets:</span>
         <button class="preset-btn active" id="presetTypicalMalignant" data-preset="malignant">
           <i class="fa-solid fa-triangle-exclamation text-rose"></i> Typical Malignant Biopsy
         </button>
@@ -167,12 +170,12 @@
           <i class="fa-solid fa-arrows-split-up-and-left text-amber"></i> Ambiguous Borderline Lesion
         </button>
         <button class="preset-btn" id="presetRandom" data-preset="random">
-          <i class="fa-solid fa-dice"></i> Random Patient Sample
+          <i class="fa-solid fa-dice"></i> Random Specimen
         </button>
       </div>
 
       <div class="simulator-layout">
-        <!-- Controls Column: Sliders -->
+        <!-- Sliders Column -->
         <div class="sliders-card glass-panel">
           <div class="card-header">
             <h3><i class="fa-solid fa-sliders text-cyan"></i> Fine Needle Aspirate (FNA) Parameters</h3>
@@ -223,7 +226,7 @@
             <!-- Concavity Mean -->
             <div class="slider-group">
               <div class="slider-meta">
-                <label for="sliderConcavity">Mean Concavity (indentation)</label>
+                <label for="sliderConcavity">Mean Concavity</label>
                 <span class="slider-val" id="valConcavity">0.1607</span>
               </div>
               <input type="range" class="custom-slider" id="sliderConcavity" min="0.0" max="0.45" step="0.005" value="0.1607">
@@ -263,7 +266,7 @@
             <!-- Worst Texture -->
             <div class="slider-group">
               <div class="slider-meta">
-                <label for="sliderWorstTexture">Worst Texture (periphery)</label>
+                <label for="sliderWorstTexture">Worst Texture</label>
                 <span class="slider-val" id="valWorstTexture">29.30</span>
               </div>
               <input type="range" class="custom-slider" id="sliderWorstTexture" min="12.0" max="50.0" step="0.5" value="29.30">
@@ -282,7 +285,7 @@
           </div>
         </div>
 
-        <!-- Consensus & Real-time Diagnostic Output Column -->
+        <!-- Consensus & Radar Output Column -->
         <div class="diagnosis-card glass-panel" id="diagnosisCard">
           <div class="card-header">
             <h3><i class="fa-solid fa-shield-virus text-rose"></i> Clinical Multi-Model Consensus</h3>
@@ -293,9 +296,7 @@
           <div class="consensus-gauge-block">
             <div class="gauge-dial-container">
               <svg class="gauge-svg" viewBox="0 0 200 120">
-                <!-- Gauge Background Arc -->
                 <path d="M 20 100 A 80 80 0 0 1 180 100" class="gauge-bg" fill="none" stroke-width="18" stroke-linecap="round"></path>
-                <!-- Gauge Dynamic Arc -->
                 <path d="M 20 100 A 80 80 0 0 1 180 100" class="gauge-progress" id="gaugeProgress" fill="none" stroke-width="18" stroke-linecap="round"></path>
               </svg>
               <div class="gauge-center-content">
@@ -310,9 +311,17 @@
             </div>
           </div>
 
-          <!-- Triple Model Comparison Cards -->
+          <!-- Interactive ECharts Radar Chart -->
+          <div class="radar-box">
+            <div class="radar-header">
+              <span><i class="fa-solid fa-circle-nodes text-cyan"></i> <strong>Live Cytological Morphology Radar:</strong></span>
+              <span class="text-muted text-xs">Specimen vs Normal Archetypes</span>
+            </div>
+            <div id="chartRadar" class="echarts-container" style="height: 290px;"></div>
+          </div>
+
+          <!-- Triple Model Evaluation Stack -->
           <div class="model-cards-stack">
-            <!-- RBF SVM Card (Optimal) -->
             <div class="model-eval-row best-model-row" id="rowRBF">
               <div class="model-badge-col">
                 <div class="model-title"><i class="fa-solid fa-crown text-gold"></i> Tuned RBF SVM</div>
@@ -329,7 +338,6 @@
               </div>
             </div>
 
-            <!-- Linear SVM Card -->
             <div class="model-eval-row" id="rowLin">
               <div class="model-badge-col">
                 <div class="model-title"><i class="fa-solid fa-slash text-amber"></i> Tuned Linear SVM</div>
@@ -346,7 +354,6 @@
               </div>
             </div>
 
-            <!-- Decision Tree Card -->
             <div class="model-eval-row" id="rowDT">
               <div class="model-badge-col">
                 <div class="model-title"><i class="fa-solid fa-sitemap text-emerald"></i> Pruned Decision Tree</div>
@@ -364,7 +371,7 @@
             </div>
           </div>
 
-          <!-- Clinical Action Advisory Alert -->
+          <!-- Clinical Action Advisory Box -->
           <div class="clinical-advisory-box" id="clinicalAdvisory">
             <div class="advisory-icon"><i class="fa-solid fa-hospital-user"></i></div>
             <div class="advisory-text">
@@ -378,23 +385,24 @@
       </div>
     </section>
 
-    <!-- SECTION 2: 2D DECISION BOUNDARY PLAYGROUND -->
+    <!-- SECTION 2: 2D DECISION BOUNDARY & PCA LATENT SPACE (ECHARTS) -->
     <section class="dashboard-section" id="boundaries">
       <div class="section-header">
-        <div class="section-tag"><i class="fa-solid fa-draw-polygon"></i> Manifold Projection</div>
-        <h2 class="section-title">2D Latent Decision Boundary Studio (PCA Projected Space)</h2>
+        <div class="section-tag"><i class="fa-solid fa-draw-polygon"></i> Interactive Latent Space</div>
+        <h2 class="section-title">2D Latent Decision Boundary Studio (Apache ECharts)</h2>
         <p class="section-desc">
-          Compare how the three algorithmic architectures slice the 30-dimensional cytological space. 
-          The glowing crosshair represents your <strong>live patient specimen</strong> moving through the decision space in real time.
+          Interactive projection of the 30-dimensional cytological space onto the top principal components. 
+          Hover over real patient biopsies to inspect their predictions and confidence scores. 
+          The glowing gold crosshair tracks your <strong>active slider specimen</strong> in real time.
         </p>
       </div>
 
       <div class="boundary-container glass-panel">
         <div class="boundary-controls-bar">
           <div class="boundary-model-selector">
-            <span class="controls-label"><i class="fa-solid fa-layer-group"></i> Active Boundary Model:</span>
+            <span class="controls-label"><i class="fa-solid fa-layer-group"></i> Active Decision Boundary:</span>
             <button class="btn-boundary-tab active" id="btnBoundRBF" data-boundary="rbf">
-              <i class="fa-solid fa-crown text-gold"></i> Tuned RBF SVM (Dual Non-Linear Manifold)
+              <i class="fa-solid fa-crown text-gold"></i> Tuned RBF SVM (Non-Linear Manifold)
             </button>
             <button class="btn-boundary-tab" id="btnBoundLin" data-boundary="linear">
               <i class="fa-solid fa-slash text-amber"></i> Tuned Linear SVM (Planar Hyperplane)
@@ -405,19 +413,15 @@
           </div>
 
           <div class="boundary-legend">
-            <span class="legend-item"><span class="dot-marker dot-benign"></span> Benign Patient (N=72)</span>
-            <span class="legend-item"><span class="dot-marker dot-malignant"></span> Malignant Patient (N=42)</span>
-            <span class="legend-item"><span class="dot-marker dot-live pulse-dot"></span> <strong>Current Patient</strong></span>
+            <span class="legend-item"><span class="dot-marker dot-benign"></span> Benign Patients (N=72)</span>
+            <span class="legend-item"><span class="dot-marker dot-malignant"></span> Malignant Patients (N=42)</span>
+            <span class="legend-item"><span class="dot-marker dot-live pulse-dot"></span> <strong>Active Specimen</strong></span>
           </div>
         </div>
 
-        <div class="canvas-wrapper">
-          <canvas id="pcaCanvas" width="900" height="480"></canvas>
-          <div class="canvas-overlay-card" id="canvasLiveCoord">
-            <div class="overlay-row"><span>Active Coordinates:</span> <strong id="liveCoordText">PC1: +2.45, PC2: -0.82</strong></div>
-            <div class="overlay-row"><span>Latent Subspace:</span> <strong>63.2% Global Variance</strong></div>
-            <div class="overlay-row"><span>Boundary Status:</span> <strong class="text-rose" id="liveBoundaryStatus">Malignant Region</strong></div>
-          </div>
+        <!-- Interactive ECharts Scatter Plot Container -->
+        <div class="echarts-card-wrapper">
+          <div id="chartPCA" class="echarts-container" style="height: 500px;"></div>
         </div>
 
         <div class="boundary-explanation-footer">
@@ -439,134 +443,97 @@
       </div>
     </section>
 
-    <!-- SECTION 3: MODEL BENCHMARKS & ROC-AUC STUDIO -->
+    <!-- SECTION 3: MODEL BENCHMARKS (INTERACTIVE ECHARTS) -->
     <section class="dashboard-section" id="benchmarks">
       <div class="section-header">
         <div class="section-tag"><i class="fa-solid fa-chart-column"></i> Requirement (iv) Benchmarking</div>
-        <h2 class="section-title">Comparative Performance Benchmarking &amp; ROC Analysis</h2>
+        <h2 class="section-title">Comparative Performance Benchmarking (Interactive ECharts)</h2>
         <p class="section-desc">
-          Rigorous validation across 6 competing models on the held-out stratified test set ($N=114$ samples). 
-          Explore ROC-AUC curves, confusion matrices, and latency profiles.
+          Exhaustive holdout test set ($N=114$ samples) validation across all 6 architectures. 
+          Use interactive ECharts controls to toggle curves, inspect confusion matrix cells, and compare latency metrics.
         </p>
       </div>
 
       <!-- Tab Buttons -->
       <div class="benchmark-tabs">
         <button class="bench-tab-btn active" id="tabBtnROC" data-tab="tabROC">
-          <i class="fa-solid fa-chart-line"></i> ROC-AUC Curves
+          <i class="fa-solid fa-chart-line"></i> Interactive ROC-AUC Curves
         </button>
         <button class="bench-tab-btn" id="tabBtnCM" data-tab="tabCM">
-          <i class="fa-solid fa-table-cells"></i> Clinical Confusion Matrices
+          <i class="fa-solid fa-table-cells"></i> Clinical Confusion Matrix Heatmap
         </button>
         <button class="bench-tab-btn" id="tabBtnTable" data-tab="tabTable">
           <i class="fa-solid fa-table"></i> Master Performance Matrix
         </button>
         <button class="bench-tab-btn" id="tabBtnLatency" data-tab="tabLatency">
-          <i class="fa-solid fa-stopwatch"></i> Runtime &amp; Latency Breakdown
+          <i class="fa-solid fa-stopwatch"></i> Latency &amp; Fit-Time Benchmarks
         </button>
       </div>
 
-      <!-- Tab 1: ROC-AUC Curves -->
+      <!-- Tab 1: Interactive ROC-AUC Curves -->
       <div class="tab-pane active" id="tabROC">
         <div class="glass-panel panel-padded">
-          <div class="panel-split-layout">
-            <div class="chart-display-col">
-              <img src="figures/fig3_roc_comparison.png" alt="ROC-AUC Curve Benchmark" class="responsive-img-chart">
+          <div class="panel-header-with-actions">
+            <div>
+              <h3><i class="fa-solid fa-chart-line text-cyan"></i> Receiver Operating Characteristic (ROC) Multi-Model Curves</h3>
+              <p class="text-muted">Hover along any curve to inspect False Positive Rate (FPR), True Positive Rate (Sensitivity), and decision thresholds. Click legend items to isolate individual models.</p>
             </div>
-            <div class="chart-details-col">
-              <h3><i class="fa-solid fa-circle-nodes text-cyan"></i> ROC-AUC Diagnostic Discrimination</h3>
-              <p>The Receiver Operating Characteristic (ROC) plots the True Positive Rate (Sensitivity) against the False Positive Rate (1 - Specificity) across all discrimination thresholds.</p>
-              
-              <div class="auc-leaderboard">
-                <div class="auc-item best-auc">
-                  <div class="auc-rank">1</div>
-                  <div class="auc-info">
-                    <div class="auc-name">Tuned RBF SVM (C=5, &gamma;=0.01)</div>
-                    <div class="auc-note">Zero False Alarms &bull; Only 2 Missed Malignancies</div>
-                  </div>
-                  <div class="auc-score">0.9974</div>
-                </div>
-
-                <div class="auc-item">
-                  <div class="auc-rank">2</div>
-                  <div class="auc-info">
-                    <div class="auc-name">Baseline RBF SVM (C=1, scale)</div>
-                    <div class="auc-note">Default Gaussian Bandwidth</div>
-                  </div>
-                  <div class="auc-score">0.9947</div>
-                </div>
-
-                <div class="auc-item">
-                  <div class="auc-rank">3</div>
-                  <div class="auc-info">
-                    <div class="auc-name">Tuned Linear SVM (C=0.5)</div>
-                    <div class="auc-note">Optimal Soft-Margin Trade-off</div>
-                  </div>
-                  <div class="auc-score">0.9937</div>
-                </div>
-
-                <div class="auc-item">
-                  <div class="auc-rank">4</div>
-                  <div class="auc-info">
-                    <div class="auc-name">Baseline Linear SVM (C=1.0)</div>
-                    <div class="auc-note">Primal Convex Hyperplane</div>
-                  </div>
-                  <div class="auc-score">0.9914</div>
-                </div>
-
-                <div class="auc-item">
-                  <div class="auc-rank">5</div>
-                  <div class="auc-info">
-                    <div class="auc-name">Tuned Decision Tree (d=6)</div>
-                    <div class="auc-note">Pre-pruned Leaf Architecture</div>
-                  </div>
-                  <div class="auc-score">0.9271</div>
-                </div>
-
-                <div class="auc-item">
-                  <div class="auc-rank">6</div>
-                  <div class="auc-info">
-                    <div class="auc-name">Baseline Decision Tree (unpruned)</div>
-                    <div class="auc-note">Depth 8 &bull; 24 Fragmented Leaves</div>
-                  </div>
-                  <div class="auc-score">0.9246</div>
-                </div>
-              </div>
+            <div class="chart-toolbox-note">
+              <span class="badge-pill pill-rbf"><i class="fa-solid fa-crown"></i> RBF AUC: 0.9974</span>
+              <span class="badge-pill pill-lin"><i class="fa-solid fa-shield"></i> Linear AUC: 0.9937</span>
             </div>
           </div>
+
+          <div id="chartROC" class="echarts-container" style="height: 480px;"></div>
         </div>
       </div>
 
-      <!-- Tab 2: Confusion Matrices -->
+      <!-- Tab 2: Interactive Confusion Matrix Heatmap -->
       <div class="tab-pane" id="tabCM">
         <div class="glass-panel panel-padded">
           <div class="panel-header-with-actions">
             <div>
-              <h3><i class="fa-solid fa-table-cells-large text-rose"></i> Clinical Confusion Matrices Grid</h3>
-              <p class="text-muted">In diagnostic cytology, a <strong>False Negative</strong> represents a lethal missed malignancy, while a <strong>False Positive</strong> triggers follow-up re-biopsy.</p>
+              <h3><i class="fa-solid fa-table-cells-large text-rose"></i> Clinical Confusion Matrix Heatmap Explorer</h3>
+              <p class="text-muted">Select an architecture to inspect its clinical diagnostic contingency matrix ($N=114$ patients: 42 Malignant, 72 Benign).</p>
             </div>
-            <div class="cm-controls">
-              <span class="badge-pill pill-rbf"><i class="fa-solid fa-heart-pulse"></i> Critical Goal: Minimize FN</span>
+            <div class="cm-dropdown-selector">
+              <label for="cmModelSelect" class="text-xs text-muted">Active Model:</label>
+              <select id="cmModelSelect" class="custom-select">
+                <option value="Tuned RBF SVM (Optimal)">Tuned RBF SVM (Optimal) [FN: 2, FP: 0]</option>
+                <option value="Tuned Linear SVM">Tuned Linear SVM [FN: 3, FP: 1]</option>
+                <option value="Tuned Decision Tree">Tuned Decision Tree [FN: 13, FP: 3]</option>
+                <option value="Baseline RBF SVM">Baseline RBF SVM [FN: 3, FP: 0]</option>
+                <option value="Baseline Linear SVM">Baseline Linear SVM [FN: 4, FP: 0]</option>
+                <option value="Baseline Decision Tree">Baseline Decision Tree [FN: 4, FP: 4]</option>
+              </select>
             </div>
           </div>
-          <div class="figure-wrapper">
-            <img src="figures/fig4_confusion_matrices.png" alt="Confusion Matrices Grid" class="responsive-img-chart">
-          </div>
-          <div class="cm-metric-cards-grid">
-            <div class="cm-stat-card border-rose">
-              <div class="cm-stat-val text-rose">2</div>
-              <div class="cm-stat-lbl">Tuned RBF False Negatives (FN)</div>
-              <div class="cm-stat-sub">Lowest Missed Cancers Across All Models</div>
+
+          <div class="cm-display-grid">
+            <div class="cm-chart-col">
+              <div id="chartCM" class="echarts-container" style="height: 380px;"></div>
             </div>
-            <div class="cm-stat-card border-emerald">
-              <div class="cm-stat-val text-emerald">0</div>
-              <div class="cm-stat-lbl">Tuned RBF False Positives (FP)</div>
-              <div class="cm-stat-sub">100% Specificity (Zero Healthy Alarms)</div>
-            </div>
-            <div class="cm-stat-card border-amber">
-              <div class="cm-stat-val text-amber">13</div>
-              <div class="cm-stat-lbl">Tuned Decision Tree FN</div>
-              <div class="cm-stat-sub">High Miss Rate Due to Orthogonal Boundary Stiffness</div>
+            <div class="cm-stats-col">
+              <div class="cm-highlight-card border-rose">
+                <div class="cm-big-num text-rose" id="cmFNVal">2</div>
+                <div class="cm-card-title">False Negatives (Missed Cancers)</div>
+                <p class="cm-card-desc">Lethal medical risk: malignant cases mistakenly diagnosed as benign.</p>
+              </div>
+
+              <div class="cm-highlight-card border-emerald">
+                <div class="cm-big-num text-emerald" id="cmFPVal">0</div>
+                <div class="cm-card-title">False Positives (False Alarms)</div>
+                <p class="cm-card-desc">Causes patient anxiety and triggers confirmatory secondary imaging.</p>
+              </div>
+
+              <div class="cm-details-list">
+                <div class="cm-detail-row"><span>Accuracy:</span> <strong id="cmAccVal">98.25%</strong></div>
+                <div class="cm-detail-row"><span>Clinical Sensitivity (Recall):</span> <strong id="cmRecVal">95.24%</strong></div>
+                <div class="cm-detail-row"><span>Specificity:</span> <strong id="cmSpecVal">100.00%</strong></div>
+                <div class="cm-detail-row"><span>Precision (PPV):</span> <strong id="cmPrecVal">100.00%</strong></div>
+                <div class="cm-detail-row"><span>F1-Score:</span> <strong id="cmF1Val">0.9756</strong></div>
+                <div class="cm-detail-row"><span>MCC:</span> <strong id="cmMCCVal">0.9626</strong></div>
+              </div>
             </div>
           </div>
         </div>
@@ -677,95 +644,76 @@
         </div>
       </div>
 
-      <!-- Tab 4: Latency & Runtime -->
+      <!-- Tab 4: Latency & Runtime ECharts -->
       <div class="tab-pane" id="tabLatency">
         <div class="glass-panel panel-padded">
-          <div class="panel-split-layout">
-            <div class="chart-display-col">
-              <img src="figures/fig8_runtime_breakdown.png" alt="Runtime and Latency Breakdown" class="responsive-img-chart">
+          <div class="panel-header-with-actions">
+            <div>
+              <h3><i class="fa-solid fa-stopwatch text-amber"></i> Computational Training Time vs Inference Latency</h3>
+              <p class="text-muted">Interactive ECharts dual bar comparison of wall-clock training fit time (ms) and real-time per-specimen evaluation latency (&mu;s).</p>
             </div>
-            <div class="chart-details-col">
-              <h3><i class="fa-solid fa-bolt text-amber"></i> Edge Hardware &amp; Diagnostic Latency</h3>
-              <p>For deployment on edge digital pathology scanners, latency must remain in the microsecond range per tile.</p>
-              
-              <div class="latency-metrics-list">
-                <div class="latency-card">
-                  <div class="latency-header">
-                    <span class="latency-name">Tuned Decision Tree</span>
-                    <span class="latency-badge text-emerald">2.01 &mu;s / specimen</span>
-                  </div>
-                  <div class="latency-desc">Fastest inference. Traverses single branching conditions sequentially.</div>
-                </div>
-                <div class="latency-card">
-                  <div class="latency-header">
-                    <span class="latency-name">Tuned Linear SVM</span>
-                    <span class="latency-badge text-amber">3.23 &mu;s / specimen</span>
-                  </div>
-                  <div class="latency-desc">Direct dot product $\mathbf{w}^T \mathbf{x} + b$. Minimal vector arithmetic.</div>
-                </div>
-                <div class="latency-card highlight-latency">
-                  <div class="latency-header">
-                    <span class="latency-name">Tuned RBF Kernel SVM</span>
-                    <span class="latency-badge text-cyan">7.50 &mu;s / specimen</span>
-                  </div>
-                  <div class="latency-desc">Evaluates Gaussian kernel against active support vectors. Ultra-viable for edge cytology scanners.</div>
-                </div>
-              </div>
-            </div>
+            <span class="badge-pill"><i class="fa-solid fa-microchip"></i> Edge Viable (&lt; 15 &mu;s)</span>
           </div>
+
+          <div id="chartLatency" class="echarts-container" style="height: 420px;"></div>
         </div>
       </div>
     </section>
 
-    <!-- SECTION 4: MULTICOLLINEARITY & PROFILING STUDIO -->
+    <!-- SECTION 4: MULTICOLLINEARITY & VIF (INTERACTIVE ECHARTS) -->
     <section class="dashboard-section" id="multicollinearity">
       <div class="section-header">
         <div class="section-tag"><i class="fa-solid fa-diagram-project"></i> Requirement (i) Multicollinearity</div>
-        <h2 class="section-title">Cytological Profiling &amp; Multicollinearity Studio</h2>
+        <h2 class="section-title">Cytological Profiling &amp; Multicollinearity Studio (ECharts)</h2>
         <p class="section-desc">
-          Rigorous exploration of biological geometric coupling. 21 feature pairs exceed $|r| \ge 0.90$ with VIF reaching 3,806.
+          Interactive 30&times;30 Pearson correlation matrix and Variance Inflation Factor (VIF) ranking. 
+          Hover over cells to see exact mathematical coupling ($r$) and cell geometric dependencies.
         </p>
       </div>
 
       <div class="two-col-figures-grid">
+        <!-- Interactive Correlation Heatmap -->
         <div class="figure-card glass-panel">
           <div class="card-header">
             <h3><i class="fa-solid fa-border-all text-purple"></i> Pearson Correlation Heatmap</h3>
-            <span class="badge-pill">30 &times; 30 Matrix</span>
+            <span class="badge-pill">Zoomable 30 &times; 30</span>
           </div>
-          <div class="figure-img-box">
-            <img src="figures/fig1_correlation_matrix.png" alt="Correlation Matrix Heatmap" class="responsive-img-chart">
-          </div>
-          <p class="figure-caption">Dense clusters between radius, perimeter, and area reflect algebraic biological formulas ($P = 2\pi r$, $A = \pi r^2$).</p>
+          <div id="chartCorr" class="echarts-container" style="height: 480px;"></div>
+          <p class="figure-caption">Biological cell geometry causes strong algebraic coupling: $P = 2\pi r$, $A = \pi r^2$. Notice dense correlation blocks in radius, perimeter, and area.</p>
         </div>
 
+        <!-- Interactive VIF Bar Chart -->
         <div class="figure-card glass-panel">
           <div class="card-header">
             <h3><i class="fa-solid fa-chart-simple text-rose"></i> Top Variance Inflation Factors (VIF)</h3>
             <span class="badge-pill">Threshold VIF = 10</span>
           </div>
-          <div class="figure-img-box">
-            <img src="figures/fig2_vif_profile.png" alt="Variance Inflation Factors" class="responsive-img-chart">
-          </div>
-          <p class="figure-caption">Logarithmic VIF scale demonstrates that while OLS regression fails under this collinearity, L2-regularized SVM and trees handle it gracefully.</p>
+          <div id="chartVIF" class="echarts-container" style="height: 480px;"></div>
+          <p class="figure-caption">Features with $\text{VIF} > 10$ convey extreme collinearity. While unregularized linear regressors degrade, $L_2$-regularized SVMs and Decision Trees remain stable.</p>
         </div>
       </div>
     </section>
 
-    <!-- SECTION 5: FEATURE IMPORTANCE & STRUCTURAL CRITIQUE -->
+    <!-- SECTION 5: FEATURE IMPORTANCE & STRUCTURAL CRITIQUE (INTERACTIVE ECHARTS) -->
     <section class="dashboard-section" id="features">
       <div class="section-header">
         <div class="section-tag"><i class="fa-solid fa-ranking-star"></i> Requirement (iii) Feature Attribution</div>
-        <h2 class="section-title">Feature Importance Extraction &amp; Structural Complexity Critique</h2>
+        <h2 class="section-title">Comparative Feature Attribution Studio (ECharts)</h2>
         <p class="section-desc">
-          Compare MDI Gini impurity reduction against Linear SVM hyperplane weights and RBF permutation sensitivity.
+          Compare how Decision Trees (Gini MDI), Linear SVM (Hyperplane $|w|$), and Non-Linear RBF SVM (Permutation Drop) 
+          prioritize cytological features across normalized 0-100% relative scales.
         </p>
       </div>
 
       <div class="glass-panel panel-padded">
-        <div class="figure-wrapper">
-          <img src="figures/fig5_feature_importance.png" alt="Feature Importance Comparison" class="responsive-img-chart">
+        <div class="panel-header-with-actions">
+          <div>
+            <h3><i class="fa-solid fa-chart-column text-cyan"></i> Triple Model Attribution Comparison (Top 12 Features)</h3>
+            <p class="text-muted">Hover over bars to see both relative percentage rankings and exact raw mathematical weights.</p>
+          </div>
         </div>
+
+        <div id="chartFeatImp" class="echarts-container" style="height: 480px;"></div>
 
         <div class="feature-comparison-grid">
           <div class="feat-col glass-card">
@@ -815,7 +763,6 @@
       </div>
 
       <div class="submission-cards-grid">
-        <!-- PDF Download Card -->
         <div class="submission-card glass-panel">
           <div class="sub-icon text-rose"><i class="fa-solid fa-file-pdf"></i></div>
           <div class="sub-body">
@@ -830,7 +777,6 @@
           </div>
         </div>
 
-        <!-- Jupyter Notebook Card -->
         <div class="submission-card glass-panel">
           <div class="sub-icon text-amber"><i class="fa-solid fa-book-open"></i></div>
           <div class="sub-body">
@@ -845,7 +791,6 @@
           </div>
         </div>
 
-        <!-- GitHub Repository Card -->
         <div class="submission-card glass-panel">
           <div class="sub-icon text-purple"><i class="fa-brands fa-github"></i></div>
           <div class="sub-body">
@@ -882,7 +827,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      &copy; 2026 NIMKAR VEDANT GAJANAN (26MML0045). Built with pure HTML/CSS/JS &bull; Deployed on Vercel &bull; GitHub Open Source.
+      &copy; 2026 NIMKAR VEDANT GAJANAN (26MML0045). Powered by Apache ECharts &bull; Deployed on Vercel &bull; GitHub Open Source.
     </div>
   </footer>
 

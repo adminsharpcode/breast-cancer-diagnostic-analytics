@@ -1,15 +1,16 @@
 /**
- * OncoVision AI - Core Dashboard Logic
+ * OncoVision AI - Interactive Apache ECharts Studio Logic
  * Author: NIMKAR VEDANT GAJANAN (26MML0045) | VIT Vellore
  * MACSE504 Machine Learning - Course Based Design Project
  */
 
-// Global state
+// Global application state
 const state = {
   data: null,
-  testPatients: [],
-  activeBoundary: 'rbf', // 'rbf', 'linear', 'tree'
+  charts: {},
+  activeBoundary: 'rbf',
   activeTab: 'tabROC',
+  selectedCMModel: 'Tuned RBF SVM (Optimal)',
   patientFeatures: {
     'mean radius': 17.46,
     'mean texture': 21.60,
@@ -21,54 +22,12 @@ const state = {
     'mean concave points': 0.0879,
     'mean symmetry': 0.1929,
     'mean fractal dimension': 0.0627,
-    'radius error': 0.6041,
-    'texture error': 1.214,
-    'perimeter error': 4.323,
-    'area error': 72.61,
-    'smoothness error': 0.0067,
-    'compactness error': 0.0322,
-    'concavity error': 0.0418,
-    'concave points error': 0.0150,
-    'symmetry error': 0.0205,
-    'fractal dimension error': 0.0040,
-    'worst radius': 21.13,
-    'worst texture': 29.30,
     'worst perimeter': 141.30,
     'worst area': 1422.0,
-    'worst smoothness': 0.1448,
-    'worst compactness': 0.3748,
-    'worst concavity': 0.4504,
-    'worst concave points': 0.1822,
-    'worst symmetry': 0.3234,
-    'worst fractal dimension': 0.0915
+    'worst texture': 29.30
   }
 };
 
-// Fallback patient points if JSON fetch encounters cross-origin in local preview
-const FALLBACK_PATIENT_POINTS = [
-  {"pc1": -2.45, "pc2": 1.12, "true_label": 0, "rbf_pred": 0, "lin_pred": 0, "dt_pred": 0, "rbf_prob": 0.02},
-  {"pc1": -1.82, "pc2": -0.45, "true_label": 0, "rbf_pred": 0, "lin_pred": 0, "dt_pred": 0, "rbf_prob": 0.04},
-  {"pc1": -3.10, "pc2": 0.22, "true_label": 0, "rbf_pred": 0, "lin_pred": 0, "dt_pred": 0, "rbf_prob": 0.01},
-  {"pc1": -1.25, "pc2": 0.88, "true_label": 0, "rbf_pred": 0, "lin_pred": 0, "dt_pred": 0, "rbf_prob": 0.08},
-  {"pc1": -2.05, "pc2": -1.20, "true_label": 0, "rbf_pred": 0, "lin_pred": 0, "dt_pred": 0, "rbf_prob": 0.03},
-  {"pc1": -0.75, "pc2": -0.15, "true_label": 0, "rbf_pred": 0, "lin_pred": 0, "dt_pred": 0, "rbf_prob": 0.18},
-  {"pc1": -1.50, "pc2": 1.60, "true_label": 0, "rbf_pred": 0, "lin_pred": 0, "dt_pred": 0, "rbf_prob": 0.05},
-  {"pc1": -2.85, "pc2": -0.75, "true_label": 0, "rbf_pred": 0, "lin_pred": 0, "dt_pred": 0, "rbf_prob": 0.02},
-  {"pc1": -0.40, "pc2": 0.65, "true_label": 0, "rbf_pred": 0, "lin_pred": 0, "dt_pred": 0, "rbf_prob": 0.22},
-  {"pc1": -2.20, "pc2": 0.40, "true_label": 0, "rbf_pred": 0, "lin_pred": 0, "dt_pred": 0, "rbf_prob": 0.03},
-  {"pc1": 2.50, "pc2": -0.85, "true_label": 1, "rbf_pred": 1, "lin_pred": 1, "dt_pred": 1, "rbf_prob": 0.98},
-  {"pc1": 3.80, "pc2": 1.45, "true_label": 1, "rbf_pred": 1, "lin_pred": 1, "dt_pred": 1, "rbf_prob": 0.99},
-  {"pc1": 1.95, "pc2": -1.20, "true_label": 1, "rbf_pred": 1, "lin_pred": 1, "dt_pred": 1, "rbf_prob": 0.94},
-  {"pc1": 4.10, "pc2": -0.30, "true_label": 1, "rbf_pred": 1, "lin_pred": 1, "dt_pred": 1, "rbf_prob": 0.99},
-  {"pc1": 2.20, "pc2": 0.70, "true_label": 1, "rbf_pred": 1, "lin_pred": 1, "dt_pred": 1, "rbf_prob": 0.96},
-  {"pc1": 1.45, "pc2": 1.90, "true_label": 1, "rbf_pred": 1, "lin_pred": 1, "dt_pred": 1, "rbf_prob": 0.91},
-  {"pc1": 3.25, "pc2": -1.65, "true_label": 1, "rbf_pred": 1, "lin_pred": 1, "dt_pred": 1, "rbf_prob": 0.98},
-  {"pc1": 0.85, "pc2": -0.25, "true_label": 1, "rbf_pred": 1, "lin_pred": 1, "dt_pred": 0, "rbf_prob": 0.78},
-  {"pc1": 2.80, "pc2": 0.15, "true_label": 1, "rbf_pred": 1, "lin_pred": 1, "dt_pred": 1, "rbf_prob": 0.97},
-  {"pc1": 0.20, "pc2": -0.80, "true_label": 1, "rbf_pred": 1, "lin_pred": 1, "dt_pred": 1, "rbf_prob": 0.72}
-];
-
-// Presets Definition
 const PRESETS = {
   malignant: {
     'mean radius': 17.46,
@@ -108,7 +67,7 @@ const PRESETS = {
   }
 };
 
-// Initialize Application
+// Initialize on DOM Ready
 document.addEventListener('DOMContentLoaded', async () => {
   initThemeToggle();
   initNavigation();
@@ -117,16 +76,35 @@ document.addEventListener('DOMContentLoaded', async () => {
   initBenchmarkTabs();
   initBoundarySelector();
 
-  // Load backend artifacts
-  await loadDashboardData();
-  await loadPatientPoints();
+  // Load comprehensive ECharts dataset
+  await loadEChartsData();
 
-  // Initial calculation & render
+  // Initialize all interactive ECharts instances
+  initAllECharts();
+
+  // Initial calculation & UI updates
   recalculateDiagnosis();
-  renderPCACanvas();
+
+  // Handle window resizing
+  window.addEventListener('resize', () => {
+    Object.values(state.charts).forEach(c => c && c.resize());
+  });
 });
 
-// Theme Management
+// Load Dataset
+async function loadEChartsData() {
+  try {
+    const res = await fetch('figures/echarts_data.json');
+    if (res.ok) {
+      state.data = await res.json();
+      console.log('[OncoVision] Loaded echarts_data.json successfully');
+    }
+  } catch (err) {
+    console.warn('[OncoVision] Error loading echarts_data.json, falling back to embedded stats', err);
+  }
+}
+
+// Theme Toggle
 function initThemeToggle() {
   const toggleBtn = document.getElementById('themeToggleBtn');
   const themeIcon = document.getElementById('themeIcon');
@@ -139,7 +117,8 @@ function initThemeToggle() {
   }
 
   toggleBtn.addEventListener('click', () => {
-    if (document.body.classList.contains('dark-theme')) {
+    const isDark = document.body.classList.contains('dark-theme');
+    if (isDark) {
       document.body.classList.replace('dark-theme', 'light-theme');
       themeIcon.classList.replace('fa-moon', 'fa-sun');
       localStorage.setItem('oncovision_theme', 'light');
@@ -148,11 +127,12 @@ function initThemeToggle() {
       themeIcon.classList.replace('fa-sun', 'fa-moon');
       localStorage.setItem('oncovision_theme', 'dark');
     }
-    renderPCACanvas();
+    // Re-render charts for theme contrast
+    setTimeout(() => initAllECharts(), 50);
   });
 }
 
-// Navigation Smooth Scroll & Active Indicator
+// Navigation
 function initNavigation() {
   const navLinks = document.querySelectorAll('.nav-link');
   const sections = document.querySelectorAll('.dashboard-section');
@@ -175,95 +155,65 @@ function initNavigation() {
   });
 }
 
-// Load backend dashboard JSON
-async function loadDashboardData() {
-  try {
-    const res = await fetch('figures/dashboard_data.json');
-    if (res.ok) {
-      state.data = await res.json();
-      console.log('[OncoVision] Loaded dashboard_data.json successfully');
-    }
-  } catch (err) {
-    console.warn('[OncoVision] Notice: Using client-side weights (file protocol / CORS fallback)', err);
-  }
-}
-
-// Load test patient points for PCA scatter
-async function loadPatientPoints() {
-  try {
-    const res = await fetch('figures/test_patients_pca.json');
-    if (res.ok) {
-      state.testPatients = await res.json();
-      console.log('[OncoVision] Loaded test_patients_pca.json:', state.testPatients.length, 'patients');
-    } else {
-      state.testPatients = FALLBACK_PATIENT_POINTS;
-    }
-  } catch (err) {
-    state.testPatients = FALLBACK_PATIENT_POINTS;
-  }
-}
-
-// Interactive Sliders Binding
+// Sliders Initialization
 function initSliders() {
-  const sliderBindings = [
-    { id: 'sliderRadius', key: 'mean radius', valId: 'valRadius', unit: ' mm', decimals: 2 },
-    { id: 'sliderTexture', key: 'mean texture', valId: 'valTexture', unit: '', decimals: 2 },
-    { id: 'sliderPerimeter', key: 'mean perimeter', valId: 'valPerimeter', unit: ' mm', decimals: 1 },
-    { id: 'sliderArea', key: 'mean area', valId: 'valArea', unit: ' mm²', decimals: 1 },
-    { id: 'sliderConcavity', key: 'mean concavity', valId: 'valConcavity', unit: '', decimals: 4 },
-    { id: 'sliderConcavePoints', key: 'mean concave points', valId: 'valConcavePoints', unit: '', decimals: 4 },
-    { id: 'sliderWorstPerimeter', key: 'worst perimeter', valId: 'valWorstPerimeter', unit: ' mm', decimals: 1 },
-    { id: 'sliderWorstArea', key: 'worst area', valId: 'valWorstArea', unit: ' mm²', decimals: 1 },
-    { id: 'sliderWorstTexture', key: 'worst texture', valId: 'valWorstTexture', unit: '', decimals: 2 },
-    { id: 'sliderSmoothness', key: 'mean smoothness', valId: 'valSmoothness', unit: '', decimals: 4 }
+  const bindings = [
+    { id: 'sliderRadius', key: 'mean radius', valId: 'valRadius', unit: ' mm', dec: 2 },
+    { id: 'sliderTexture', key: 'mean texture', valId: 'valTexture', unit: '', dec: 2 },
+    { id: 'sliderPerimeter', key: 'mean perimeter', valId: 'valPerimeter', unit: ' mm', dec: 1 },
+    { id: 'sliderArea', key: 'mean area', valId: 'valArea', unit: ' mm²', dec: 1 },
+    { id: 'sliderConcavity', key: 'mean concavity', valId: 'valConcavity', unit: '', dec: 4 },
+    { id: 'sliderConcavePoints', key: 'mean concave points', valId: 'valConcavePoints', unit: '', dec: 4 },
+    { id: 'sliderWorstPerimeter', key: 'worst perimeter', valId: 'valWorstPerimeter', unit: ' mm', dec: 1 },
+    { id: 'sliderWorstArea', key: 'worst area', valId: 'valWorstArea', unit: ' mm²', dec: 1 },
+    { id: 'sliderWorstTexture', key: 'worst texture', valId: 'valWorstTexture', unit: '', dec: 2 },
+    { id: 'sliderSmoothness', key: 'mean smoothness', valId: 'valSmoothness', unit: '', dec: 4 }
   ];
 
-  sliderBindings.forEach(binding => {
-    const input = document.getElementById(binding.id);
-    const label = document.getElementById(binding.valId);
-    if (!input || !label) return;
+  bindings.forEach(b => {
+    const el = document.getElementById(b.id);
+    const lbl = document.getElementById(b.valId);
+    if (!el || !lbl) return;
 
-    input.addEventListener('input', (e) => {
+    el.addEventListener('input', (e) => {
       const val = parseFloat(e.target.value);
-      state.patientFeatures[binding.key] = val;
-      label.textContent = val.toFixed(binding.decimals) + binding.unit;
-      
-      // Update coupled dimensions for biological consistency
-      if (binding.key === 'mean radius') {
-        // Auto-scale coupled perimeter and area roughly
+      state.patientFeatures[b.key] = val;
+      lbl.textContent = val.toFixed(b.dec) + b.unit;
+
+      // Biological coupling auto-sync
+      if (b.key === 'mean radius') {
         state.patientFeatures['mean perimeter'] = +(val * 2 * Math.PI * 1.05).toFixed(1);
         state.patientFeatures['mean area'] = +(Math.PI * Math.pow(val, 2) * 1.02).toFixed(1);
-        updateCoupledSlider('sliderPerimeter', 'valPerimeter', state.patientFeatures['mean perimeter'], ' mm');
-        updateCoupledSlider('sliderArea', 'valArea', state.patientFeatures['mean area'], ' mm²');
+        syncSlider('sliderPerimeter', 'valPerimeter', state.patientFeatures['mean perimeter'], ' mm');
+        syncSlider('sliderArea', 'valArea', state.patientFeatures['mean area'], ' mm²');
       }
 
       recalculateDiagnosis();
-      renderPCACanvas();
+      updateRadarLive();
+      updatePCALivePoint();
     });
   });
 
-  // Reset defaults button
   document.getElementById('resetSlidersBtn').addEventListener('click', () => {
     applyPreset('malignant');
   });
 }
 
-function updateCoupledSlider(sliderId, labelId, val, unit) {
+function syncSlider(sliderId, valId, val, unit) {
   const el = document.getElementById(sliderId);
-  const lbl = document.getElementById(labelId);
+  const lbl = document.getElementById(valId);
   if (el) el.value = val;
   if (lbl) lbl.textContent = val + unit;
 }
 
-// Preset Buttons
+// Presets
 function initPresets() {
-  const buttons = document.querySelectorAll('.preset-btn');
-  buttons.forEach(btn => {
+  const btns = document.querySelectorAll('.preset-btn');
+  btns.forEach(btn => {
     btn.addEventListener('click', () => {
-      buttons.forEach(b => b.classList.remove('active'));
+      btns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      const presetType = btn.dataset.preset;
-      applyPreset(presetType);
+      applyPreset(btn.dataset.preset);
     });
   });
 }
@@ -281,40 +231,30 @@ function applyPreset(presetType) {
     presetData = PRESETS[presetType] || PRESETS.malignant;
   }
 
-  // Update state & slider elements
-  for (let key in presetData) {
-    state.patientFeatures[key] = presetData[key];
+  for (let k in presetData) {
+    state.patientFeatures[k] = presetData[k];
   }
 
-  // Update UI inputs
-  setSliderVal('sliderRadius', 'valRadius', state.patientFeatures['mean radius'], ' mm', 2);
-  setSliderVal('sliderTexture', 'valTexture', state.patientFeatures['mean texture'], '', 2);
-  setSliderVal('sliderPerimeter', 'valPerimeter', state.patientFeatures['mean perimeter'], ' mm', 1);
-  setSliderVal('sliderArea', 'valArea', state.patientFeatures['mean area'], ' mm²', 1);
-  setSliderVal('sliderConcavity', 'valConcavity', state.patientFeatures['mean concavity'], '', 4);
-  setSliderVal('sliderConcavePoints', 'valConcavePoints', state.patientFeatures['mean concave points'], '', 4);
-  setSliderVal('sliderWorstPerimeter', 'valWorstPerimeter', state.patientFeatures['worst perimeter'], ' mm', 1);
-  setSliderVal('sliderWorstArea', 'valWorstArea', state.patientFeatures['worst area'], ' mm²', 1);
-  setSliderVal('sliderWorstTexture', 'valWorstTexture', state.patientFeatures['worst texture'], '', 2);
-  setSliderVal('sliderSmoothness', 'valSmoothness', state.patientFeatures['mean smoothness'], '', 4);
+  syncSlider('sliderRadius', 'valRadius', state.patientFeatures['mean radius'], ' mm');
+  syncSlider('sliderTexture', 'valTexture', state.patientFeatures['mean texture'], '');
+  syncSlider('sliderPerimeter', 'valPerimeter', state.patientFeatures['mean perimeter'], ' mm');
+  syncSlider('sliderArea', 'valArea', state.patientFeatures['mean area'], ' mm²');
+  syncSlider('sliderConcavity', 'valConcavity', state.patientFeatures['mean concavity'], '');
+  syncSlider('sliderConcavePoints', 'valConcavePoints', state.patientFeatures['mean concave points'], '');
+  syncSlider('sliderWorstPerimeter', 'valWorstPerimeter', state.patientFeatures['worst perimeter'], ' mm');
+  syncSlider('sliderWorstArea', 'valWorstArea', state.patientFeatures['worst area'], ' mm²');
+  syncSlider('sliderWorstTexture', 'valWorstTexture', state.patientFeatures['worst texture'], '');
+  syncSlider('sliderSmoothness', 'valSmoothness', state.patientFeatures['mean smoothness'], '');
 
   recalculateDiagnosis();
-  renderPCACanvas();
+  updateRadarLive();
+  updatePCALivePoint();
 }
 
-function setSliderVal(sliderId, labelId, val, unit, dec) {
-  const input = document.getElementById(sliderId);
-  const label = document.getElementById(labelId);
-  if (input) input.value = val;
-  if (label) label.textContent = val.toFixed(dec) + unit;
-}
-
-// Mathematical Diagnostic Inference Engine (Consensus of DT, Linear SVM, and RBF SVM)
+// Mathematical Inference Engine
 function recalculateDiagnosis() {
   const f = state.patientFeatures;
 
-  // 1. Scaler Normalization (Mean & Std from training set)
-  // Baseline means & stds for key features
   const means = {
     'mean radius': 14.166, 'mean texture': 19.418, 'mean perimeter': 92.216, 'mean area': 659.578,
     'mean concavity': 0.0892, 'mean concave points': 0.0490, 'worst perimeter': 107.861,
@@ -326,37 +266,34 @@ function recalculateDiagnosis() {
     'worst area': 581.706, 'worst texture': 6.073, 'mean smoothness': 0.0143
   };
 
-  // Standardize inputs (z-scores)
   const z = {};
   for (let k in means) {
     z[k] = (f[k] - means[k]) / (stds[k] || 1);
   }
 
-  // 2. Decision Tree Prediction Logic (Tuned scikit-learn pruned decision rules)
-  // Key split: worst perimeter > 114.4 mm OR worst concave points > 0.135
-  let dtIsMalignant = false;
-  let dtConfidence = 0.95;
+  // 1. Decision Tree Rule Evaluation
+  let dtMal = false;
+  let dtConf = 0.95;
   if (f['worst perimeter'] > 114.45) {
-    if (f['worst concave points'] > 0.125 || f['mean concavity'] > 0.08) {
-      dtIsMalignant = true;
-      dtConfidence = 0.98;
+    if (f['mean concave points'] > 0.075 || f['mean concavity'] > 0.08) {
+      dtMal = true;
+      dtConf = 0.98;
     } else {
-      dtIsMalignant = f['mean area'] > 620;
-      dtConfidence = 0.85;
+      dtMal = f['mean area'] > 620;
+      dtConf = 0.85;
     }
   } else {
     if (f['mean concave points'] > 0.065 && f['worst texture'] > 28.0) {
-      dtIsMalignant = true;
-      dtConfidence = 0.78;
+      dtMal = true;
+      dtConf = 0.78;
     } else {
-      dtIsMalignant = false;
-      dtConfidence = 0.96;
+      dtMal = false;
+      dtConf = 0.96;
     }
   }
 
-  // 3. Linear SVM Prediction Logic (Hyperplane w·x + b)
-  // Standardized weights (|w|) from best_lin.coef_
-  let linScore = -0.0514; // intercept
+  // 2. Linear SVM Hyperplane Score
+  let linScore = -0.0514;
   linScore += z['mean radius'] * 0.192;
   linScore += z['mean texture'] * 0.288;
   linScore += z['mean perimeter'] * 0.226;
@@ -368,28 +305,19 @@ function recalculateDiagnosis() {
   linScore += z['worst texture'] * 0.872;
   linScore += z['mean smoothness'] * 0.173;
 
-  const linIsMalignant = linScore > 0;
-  // Convert margin to calibrated probability via Platt sigmoid: 1 / (1 + exp(-1.4 * score))
+  const linMal = linScore > 0;
   const linProb = 1 / (1 + Math.exp(-1.4 * linScore));
 
-  // 4. RBF SVM Prediction Logic (Gaussian Kernel Distance)
-  // Non-linear interaction between texture, perimeter, and concavity
-  const rbfDistance = 0.45 * Math.pow(z['worst perimeter'], 2) +
-                      0.35 * Math.pow(z['worst texture'], 2) +
-                      0.55 * Math.pow(z['mean concavity'], 2) +
-                      0.30 * Math.pow(z['worst area'], 2);
-  
-  // Dual RBF evaluation against cluster centers
+  // 3. RBF SVM Probability
   let rbfScore = linScore * 1.15 + (z['worst perimeter'] > 0.8 ? 0.65 : -0.45);
   let rbfProb = 1 / (1 + Math.exp(-1.8 * rbfScore));
   rbfProb = Math.min(0.999, Math.max(0.001, rbfProb));
-  const rbfIsMalignant = rbfProb >= 0.50;
+  const rbfMal = rbfProb >= 0.50;
 
-  // 5. Update UI Gauge & Consensus
-  updateUIResults(dtIsMalignant, dtConfidence, linIsMalignant, linScore, linProb, rbfIsMalignant, rbfProb);
+  updateConsensusUI(dtMal, dtConf, linMal, linScore, linProb, rbfMal, rbfProb);
 }
 
-function updateUIResults(dtMal, dtConf, linMal, linScore, linProb, rbfMal, rbfProb) {
+function updateConsensusUI(dtMal, dtConf, linMal, linScore, linProb, rbfMal, rbfProb) {
   const percentText = document.getElementById('gaugePercent');
   const gaugePath = document.getElementById('gaugeProgress');
   const consensusBadge = document.getElementById('consensusBadge');
@@ -398,38 +326,32 @@ function updateUIResults(dtMal, dtConf, linMal, linScore, linProb, rbfMal, rbfPr
   const advisoryDesc = document.getElementById('advisoryDesc');
   const advisoryBox = document.getElementById('clinicalAdvisory');
 
-  // Gauge Progress: Arc circumference is 251.2
-  // dashoffset = 251.2 * (1 - rbfProb)
   const percent = Math.round(rbfProb * 1000) / 10;
   percentText.textContent = `${percent.toFixed(1)}%`;
-  
+
   const totalOffset = 251.2;
   const targetOffset = totalOffset * (1 - (percent / 100));
   gaugePath.style.strokeDashoffset = targetOffset;
 
-  // Visual Classifications
   diagCard.classList.remove('benign-state', 'borderline-state');
   advisoryBox.classList.remove('benign-alert', 'borderline-alert');
 
   if (percent > 65) {
-    // Malignant State
     gaugePath.style.stroke = 'var(--accent-rose)';
     consensusBadge.textContent = 'High Risk Malignant';
     consensusBadge.className = 'badge-status';
     advisoryBox.className = 'clinical-advisory-box';
     advisoryTitle.textContent = 'Immediate Oncology Pathological Review Indicated';
-    advisoryDesc.textContent = `All active models identify characteristic malignant cytology (${percent.toFixed(1)}% confidence). Extreme nuclear pleomorphism, high concavity, and perimeter enlargement detected. Urgent ultrasound-guided core needle biopsy required.`;
+    advisoryDesc.textContent = `All active models detect characteristic malignant cytology (${percent.toFixed(1)}% probability). High cell concavity, irregular nuclear boundaries, and elevated perimeter detected. Core-needle biopsy and histological staging advised.`;
   } else if (percent < 35) {
-    // Benign State
     diagCard.classList.add('benign-state');
     advisoryBox.classList.add('benign-alert');
     gaugePath.style.stroke = 'var(--accent-emerald)';
     consensusBadge.textContent = 'Benign Lesion Profile';
     consensusBadge.className = 'badge-status benign';
-    advisoryTitle.textContent = 'Benign Fibroadenoma / Cysts Indicated';
-    advisoryDesc.textContent = `Cytological parameters align with benign morphology (${(100 - percent).toFixed(1)}% benign probability). Low perimeter, regular nuclear membranes, and negligible concavity. Routine 12-month mammographic follow-up advised.`;
+    advisoryTitle.textContent = 'Benign Fibroadenoma / Cystic Formation Indicated';
+    advisoryDesc.textContent = `Cytological parameters align with benign morphology (${(100 - percent).toFixed(1)}% benign probability). Low perimeter, regular nuclear membranes, and negligible concavity. Routine 12-month follow-up advised.`;
   } else {
-    // Borderline State
     diagCard.classList.add('borderline-state');
     advisoryBox.classList.add('borderline-alert');
     gaugePath.style.stroke = 'var(--accent-amber)';
@@ -439,7 +361,7 @@ function updateUIResults(dtMal, dtConf, linMal, linScore, linProb, rbfMal, rbfPr
     advisoryDesc.textContent = `Intermediate probability (${percent.toFixed(1)}%). Specimen falls close to the SVM decision boundary. Decision Tree and Linear SVM suggest caution. Repeat fine needle aspirate (FNA) or MRI recommended.`;
   }
 
-  // Model 1: RBF SVM
+  // Model Cards
   const predRBF = document.getElementById('predRBF');
   const confRBF = document.getElementById('confRBF');
   const barRBF = document.getElementById('barRBF');
@@ -457,7 +379,6 @@ function updateUIResults(dtMal, dtConf, linMal, linScore, linProb, rbfMal, rbfPr
     barRBF.className = 'mini-bar-fill fill-benign';
   }
 
-  // Model 2: Linear SVM
   const predLin = document.getElementById('predLin');
   const confLin = document.getElementById('confLin');
   const barLin = document.getElementById('barLin');
@@ -475,7 +396,6 @@ function updateUIResults(dtMal, dtConf, linMal, linScore, linProb, rbfMal, rbfPr
     barLin.className = 'mini-bar-fill fill-benign';
   }
 
-  // Model 3: Decision Tree
   const predDT = document.getElementById('predDT');
   const confDT = document.getElementById('confDT');
   const barDT = document.getElementById('barDT');
@@ -494,96 +414,225 @@ function updateUIResults(dtMal, dtConf, linMal, linScore, linProb, rbfMal, rbfPr
   }
 }
 
-// 2D PCA Decision Boundary Canvas Renderer
-function initBoundarySelector() {
-  const tabs = document.querySelectorAll('.btn-boundary-tab');
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      state.activeBoundary = tab.dataset.boundary;
-      renderPCACanvas();
-    });
+// ==========================================================================
+// APACHE ECHARTS INITIALIZATIONS & RENDERING
+// ==========================================================================
+
+function initAllECharts() {
+  const isDark = document.body.classList.contains('dark-theme');
+  const theme = isDark ? 'dark' : null;
+
+  renderRadarChart(isDark);
+  renderPCAChart(isDark);
+  renderROCChart(isDark);
+  renderCMChart(isDark);
+  renderCorrHeatmap(isDark);
+  renderVIFChart(isDark);
+  renderFeatureImpChart(isDark);
+  renderLatencyChart(isDark);
+}
+
+// 1. Radar Chart (Morphological Specimen Signature)
+function renderRadarChart(isDark) {
+  const dom = document.getElementById('chartRadar');
+  if (!dom || !state.data) return;
+
+  if (state.charts.radar) state.charts.radar.dispose();
+  state.charts.radar = echarts.init(dom, isDark ? 'dark' : null);
+
+  const radarCfg = state.data.radar;
+  const currentValues = radarCfg.feature_keys.map(k => state.patientFeatures[k] || 0.1);
+
+  const option = {
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'item' },
+    legend: {
+      bottom: 0,
+      textStyle: { color: isDark ? '#94a3b8' : '#475569', fontSize: 11 },
+      data: ['Current Specimen', 'Typical Malignant', 'Typical Benign']
+    },
+    radar: {
+      indicator: radarCfg.indicators,
+      radius: '62%',
+      center: ['50%', '46%'],
+      splitNumber: 4,
+      axisName: {
+        color: isDark ? '#94a3b8' : '#334155',
+        fontSize: 10,
+        fontWeight: 'bold'
+      },
+      splitArea: {
+        areaStyle: {
+          color: isDark
+            ? ['rgba(30, 41, 59, 0.4)', 'rgba(15, 23, 42, 0.4)']
+            : ['rgba(241, 245, 249, 0.6)', 'rgba(255, 255, 255, 0.6)']
+        }
+      },
+      axisLine: { lineStyle: { color: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' } },
+      splitLine: { lineStyle: { color: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' } }
+    },
+    series: [{
+      type: 'radar',
+      data: [
+        {
+          value: currentValues,
+          name: 'Current Specimen',
+          itemStyle: { color: '#fbbf24' },
+          lineStyle: { width: 3, color: '#fbbf24' },
+          areaStyle: { color: 'rgba(251, 191, 36, 0.35)' }
+        },
+        {
+          value: radarCfg.typical_malignant,
+          name: 'Typical Malignant',
+          itemStyle: { color: '#f43f5e' },
+          lineStyle: { width: 2, type: 'dashed', color: '#f43f5e' },
+          areaStyle: { color: 'rgba(244, 63, 94, 0.15)' }
+        },
+        {
+          value: radarCfg.typical_benign,
+          name: 'Typical Benign',
+          itemStyle: { color: '#10b981' },
+          lineStyle: { width: 2, type: 'dashed', color: '#10b981' },
+          areaStyle: { color: 'rgba(16, 185, 129, 0.15)' }
+        }
+      ]
+    }]
+  };
+
+  state.charts.radar.setOption(option);
+}
+
+function updateRadarLive() {
+  if (!state.charts.radar || !state.data) return;
+  const radarCfg = state.data.radar;
+  const currentValues = radarCfg.feature_keys.map(k => state.patientFeatures[k] || 0.1);
+
+  state.charts.radar.setOption({
+    series: [{
+      data: [
+        {
+          value: currentValues,
+          name: 'Current Specimen',
+          itemStyle: { color: '#fbbf24' },
+          lineStyle: { width: 3, color: '#fbbf24' },
+          areaStyle: { color: 'rgba(251, 191, 36, 0.35)' }
+        },
+        {
+          value: radarCfg.typical_malignant,
+          name: 'Typical Malignant'
+        },
+        {
+          value: radarCfg.typical_benign,
+          name: 'Typical Benign'
+        }
+      ]
+    }]
   });
 }
 
-function renderPCACanvas() {
-  const canvas = document.getElementById('pcaCanvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width;
-  const H = canvas.height;
+// 2. 2D PCA Latent Space Scatter Chart with Interactive Boundaries
+function renderPCAChart(isDark) {
+  const dom = document.getElementById('chartPCA');
+  if (!dom || !state.data) return;
 
-  // Clear canvas
-  ctx.clearRect(0, 0, W, H);
+  if (state.charts.pca) state.charts.pca.dispose();
+  state.charts.pca = echarts.init(dom, isDark ? 'dark' : null);
 
-  // Coordinate transforms: PC1 in [-4.5, 6.0], PC2 in [-3.5, 4.0]
-  const minX = -4.5, maxX = 6.0;
-  const minY = -3.5, maxY = 4.0;
+  const pcaData = state.data.pca_scatter;
+  const liveCoord = calculateLivePCACoords();
 
-  function toScreenX(x) {
-    return ((x - minX) / (maxX - minX)) * W;
+  // Boundary lines based on model selection
+  let markLines = [];
+  if (state.activeBoundary === 'linear') {
+    markLines = [{
+      name: 'Linear SVM Separator (w·x+b=0)',
+      lineStyle: { color: '#f59e0b', width: 3, type: 'solid' },
+      coords: [[-0.2, -3.5], [1.2, 4.0]]
+    }];
+  } else if (state.activeBoundary === 'tree') {
+    markLines = [
+      { name: 'DT Split 1', lineStyle: { color: '#10b981', width: 2.5, type: 'dashed' }, coords: [[0.5, -3.5], [0.5, 1.2]] },
+      { name: 'DT Split 2', lineStyle: { color: '#10b981', width: 2.5, type: 'dashed' }, coords: [[0.5, 1.2], [4.5, 1.2]] }
+    ];
+  } else {
+    // Non-linear RBF boundary curve
+    markLines = [
+      { name: 'RBF Margin Boundary', lineStyle: { color: '#38bdf8', width: 3, type: 'solid' }, coords: [[0.3, -3.0], [0.7, 3.5]] }
+    ];
   }
-  function toScreenY(y) {
-    return H - ((y - minY) / (maxY - minY)) * H;
-  }
 
-  const isDark = document.body.classList.contains('dark-theme');
+  const option = {
+    backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'item',
+      formatter: (param) => {
+        if (param.seriesName === 'Active Specimen') {
+          return `<strong>Active Specimen (Sliders)</strong><br/>PC1: ${param.value[0]}<br/>PC2: ${param.value[1]}<br/>Location: Latent Space`;
+        }
+        const pt = param.value;
+        const diag = pt[4] === 1 ? '<span style="color:#f43f5e">Malignant</span>' : '<span style="color:#3b82f6">Benign</span>';
+        return `<strong>${pt[5]}</strong><br/>True Diagnosis: ${diag}<br/>RBF Probability: <strong>${pt[2]}%</strong><br/>PC1: ${pt[0]} | PC2: ${pt[1]}`;
+      }
+    },
+    legend: {
+      top: 10,
+      textStyle: { color: isDark ? '#94a3b8' : '#475569' },
+      data: ['Benign Patients (N=72)', 'Malignant Patients (N=42)', 'Active Specimen']
+    },
+    grid: { left: '8%', right: '6%', top: '15%', bottom: '12%' },
+    xAxis: {
+      name: `PC1 (${pcaData.explained_variance[0]}% Var)`,
+      nameLocation: 'middle',
+      nameGap: 30,
+      min: -4.5,
+      max: 5.5,
+      splitLine: { lineStyle: { color: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' } },
+      axisLabel: { color: isDark ? '#94a3b8' : '#475569' }
+    },
+    yAxis: {
+      name: `PC2 (${pcaData.explained_variance[1]}% Var)`,
+      nameLocation: 'middle',
+      nameGap: 35,
+      min: -3.5,
+      max: 4.0,
+      splitLine: { lineStyle: { color: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' } },
+      axisLabel: { color: isDark ? '#94a3b8' : '#475569' }
+    },
+    series: [
+      {
+        name: 'Benign Patients (N=72)',
+        type: 'scatter',
+        symbolSize: 10,
+        itemStyle: { color: '#3b82f6', borderColor: '#ffffff', borderWidth: 1 },
+        data: pcaData.benign
+      },
+      {
+        name: 'Malignant Patients (N=42)',
+        type: 'scatter',
+        symbolSize: 12,
+        itemStyle: { color: '#f43f5e', borderColor: '#ffffff', borderWidth: 1 },
+        data: pcaData.malignant,
+        markLine: {
+          silent: true,
+          data: markLines
+        }
+      },
+      {
+        name: 'Active Specimen',
+        type: 'effectScatter',
+        symbolSize: 22,
+        rippleEffect: { scale: 3, brushType: 'stroke' },
+        itemStyle: { color: '#fbbf24', borderColor: '#ffffff', borderWidth: 2 },
+        data: [[liveCoord.pc1, liveCoord.pc2]]
+      }
+    ]
+  };
 
-  // 1. Draw Decision Boundary Shading / Contours
-  drawBoundaryZones(ctx, W, H, state.activeBoundary, isDark);
+  state.charts.pca.setOption(option);
+}
 
-  // 2. Draw Subtle Coordinate Grid
-  ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  // Horizontal center axis (PC2 = 0)
-  const yZero = toScreenY(0);
-  ctx.moveTo(0, yZero);
-  ctx.lineTo(W, yZero);
-  // Vertical center axis (PC1 = 0)
-  const xZero = toScreenX(0);
-  ctx.moveTo(xZero, 0);
-  ctx.lineTo(xZero, H);
-  ctx.stroke();
-
-  // Axis Labels
-  ctx.font = '11px "JetBrains Mono", monospace';
-  ctx.fillStyle = isDark ? '#64748b' : '#94a3b8';
-  ctx.fillText('PC1 (44.3% variance) ➔', W - 180, yZero - 8);
-  ctx.fillText('PC2 (19.0% variance) ➔', xZero + 8, 20);
-
-  // 3. Draw Test Patient Scatter Points
-  const patients = state.testPatients.length > 0 ? state.testPatients : FALLBACK_PATIENT_POINTS;
-  patients.forEach(pt => {
-    const sx = toScreenX(pt.pc1);
-    const sy = toScreenY(pt.pc2);
-
-    if (pt.true_label === 1) {
-      // Malignant Patient (Red Triangle / Circle)
-      ctx.fillStyle = '#f43f5e';
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.arc(sx, sy, 5.5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-    } else {
-      // Benign Patient (Blue Circle)
-      ctx.fillStyle = '#3b82f6';
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.arc(sx, sy, 4.5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-    }
-  });
-
-  // 4. Calculate Current Patient PCA Projection
-  // Approximate PC1 and PC2 using top eigenvectors
+function calculateLivePCACoords() {
   const f = state.patientFeatures;
-  // Scaled proxy coordinates
   const radZ = (f['mean radius'] - 14.166) / 3.575;
   const texZ = (f['mean texture'] - 19.418) / 4.286;
   const perZ = (f['worst perimeter'] - 107.861) / 34.138;
@@ -591,142 +640,476 @@ function renderPCACanvas() {
 
   const curPC1 = +(radZ * 0.42 + perZ * 0.45 + conZ * 0.35 + texZ * 0.12).toFixed(2);
   const curPC2 = +(-radZ * 0.28 - perZ * 0.25 + texZ * 0.42 + conZ * 0.22).toFixed(2);
-
-  const curX = toScreenX(curPC1);
-  const curY = toScreenY(curPC2);
-
-  // 5. Draw Glowing Current Patient Crosshair
-  // Outer pulse circle
-  ctx.strokeStyle = 'rgba(251, 191, 36, 0.4)';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(curX, curY, 18, 0, Math.PI * 2);
-  ctx.stroke();
-
-  // Middle ring
-  ctx.strokeStyle = '#fbbf24';
-  ctx.lineWidth = 2.5;
-  ctx.beginPath();
-  ctx.arc(curX, curY, 10, 0, Math.PI * 2);
-  ctx.stroke();
-
-  // Solid Center
-  ctx.fillStyle = '#ffffff';
-  ctx.beginPath();
-  ctx.arc(curX, curY, 4, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Crosshairs
-  ctx.strokeStyle = 'rgba(251, 191, 36, 0.8)';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(curX - 24, curY);
-  ctx.lineTo(curX + 24, curY);
-  ctx.moveTo(curX, curY - 24);
-  ctx.lineTo(curX, curY + 24);
-  ctx.stroke();
-
-  // Update coordinate overlay card
-  const liveCoordEl = document.getElementById('liveCoordText');
-  const liveStatusEl = document.getElementById('liveBoundaryStatus');
-  if (liveCoordEl) {
-    liveCoordEl.textContent = `PC1: ${curPC1 > 0 ? '+' : ''}${curPC1}, PC2: ${curPC2 > 0 ? '+' : ''}${curPC2}`;
-  }
-  if (liveStatusEl) {
-    if (curPC1 > 0.45) {
-      liveStatusEl.textContent = 'Malignant Region';
-      liveStatusEl.className = 'text-rose';
-    } else {
-      liveStatusEl.textContent = 'Benign Region';
-      liveStatusEl.className = 'text-emerald';
-    }
-  }
+  return { pc1: curPC1, pc2: curPC2 };
 }
 
-function drawBoundaryZones(ctx, W, H, modelType, isDark) {
-  // Decision boundaries projected onto 2D PCA space
-  ctx.save();
-
-  if (modelType === 'rbf') {
-    // Non-linear curved envelope
-    // Malignant region on the right (high PC1) with smooth Gaussian curved boundary
-    const grad = ctx.createLinearGradient(0, 0, W, 0);
-    grad.addColorStop(0, isDark ? 'rgba(59, 130, 246, 0.12)' : 'rgba(59, 130, 246, 0.08)');
-    grad.addColorStop(0.48, isDark ? 'rgba(59, 130, 246, 0.02)' : 'rgba(59, 130, 246, 0.01)');
-    grad.addColorStop(0.52, isDark ? 'rgba(244, 63, 94, 0.02)' : 'rgba(244, 63, 94, 0.01)');
-    grad.addColorStop(1, isDark ? 'rgba(244, 63, 94, 0.15)' : 'rgba(244, 63, 94, 0.08)');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, W, H);
-
-    // Smooth Curved Separatrix Line
-    ctx.strokeStyle = '#38bdf8';
-    ctx.lineWidth = 3;
-    ctx.shadowColor = '#38bdf8';
-    ctx.shadowBlur = 12;
-    ctx.beginPath();
-    ctx.moveTo(W * 0.44, 0);
-    ctx.bezierCurveTo(W * 0.48, H * 0.35, W * 0.52, H * 0.65, W * 0.46, H);
-    ctx.stroke();
-
-  } else if (modelType === 'linear') {
-    // Straight separating hyperplane
-    const grad = ctx.createLinearGradient(0, 0, W, 0);
-    grad.addColorStop(0, isDark ? 'rgba(59, 130, 246, 0.12)' : 'rgba(59, 130, 246, 0.08)');
-    grad.addColorStop(1, isDark ? 'rgba(244, 63, 94, 0.14)' : 'rgba(244, 63, 94, 0.08)');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, W, H);
-
-    // Linear Line
-    ctx.strokeStyle = '#f59e0b';
-    ctx.lineWidth = 3;
-    ctx.shadowColor = '#f59e0b';
-    ctx.shadowBlur = 10;
-    ctx.beginPath();
-    ctx.moveTo(W * 0.42, 0);
-    ctx.lineTo(W * 0.52, H);
-    ctx.stroke();
-
-  } else if (modelType === 'tree') {
-    // Orthogonal rectangular step cuts
-    ctx.fillStyle = isDark ? 'rgba(59, 130, 246, 0.08)' : 'rgba(59, 130, 246, 0.05)';
-    ctx.fillRect(0, 0, W, H);
-
-    ctx.fillStyle = isDark ? 'rgba(244, 63, 94, 0.12)' : 'rgba(244, 63, 94, 0.08)';
-    // Rectangular partitions
-    ctx.fillRect(W * 0.48, 0, W * 0.52, H * 0.45);
-    ctx.fillRect(W * 0.45, H * 0.45, W * 0.55, H * 0.55);
-
-    // Stepped boundary lines
-    ctx.strokeStyle = '#10b981';
-    ctx.lineWidth = 3;
-    ctx.shadowColor = '#10b981';
-    ctx.shadowBlur = 10;
-    ctx.beginPath();
-    ctx.moveTo(W * 0.48, 0);
-    ctx.lineTo(W * 0.48, H * 0.45);
-    ctx.lineTo(W * 0.45, H * 0.45);
-    ctx.lineTo(W * 0.45, H);
-    ctx.stroke();
-  }
-
-  ctx.restore();
+function updatePCALivePoint() {
+  if (!state.charts.pca) return;
+  const liveCoord = calculateLivePCACoords();
+  state.charts.pca.setOption({
+    series: [
+      {},
+      {},
+      {
+        data: [[liveCoord.pc1, liveCoord.pc2]]
+      }
+    ]
+  });
 }
 
-// Benchmark Tabs Navigation
+function initBoundarySelector() {
+  const tabs = document.querySelectorAll('.btn-boundary-tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      state.activeBoundary = tab.dataset.boundary;
+      const isDark = document.body.classList.contains('dark-theme');
+      renderPCAChart(isDark);
+    });
+  });
+}
+
+// 3. Interactive ROC-AUC Multi-Curve Chart
+function renderROCChart(isDark) {
+  const dom = document.getElementById('chartROC');
+  if (!dom || !state.data) return;
+
+  if (state.charts.roc) state.charts.roc.dispose();
+  state.charts.roc = echarts.init(dom, isDark ? 'dark' : null);
+
+  const rocObj = state.data.roc_curves;
+  const series = [];
+
+  for (let modelName in rocObj) {
+    const item = rocObj[modelName];
+    series.push({
+      name: `${modelName} (AUC = ${item.auc})`,
+      type: 'line',
+      smooth: true,
+      data: item.points.map(p => [p[0], p[1]]),
+      itemStyle: { color: item.color },
+      lineStyle: { width: 3, type: item.lineStyle || 'solid' },
+      symbol: 'none'
+    });
+  }
+
+  // Random Chance Baseline
+  series.push({
+    name: 'Random Chance (AUC = 0.5000)',
+    type: 'line',
+    data: [[0, 0], [1, 1]],
+    lineStyle: { color: '#64748b', type: 'dotted', width: 2 },
+    symbol: 'none'
+  });
+
+  const option = {
+    backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'cross' },
+      formatter: (params) => {
+        let text = `<strong>FPR: ${params[0].value[0]}</strong><br/>`;
+        params.forEach(p => {
+          text += `${p.marker} ${p.seriesName}: <strong>TPR ${p.value[1]}</strong><br/>`;
+        });
+        return text;
+      }
+    },
+    legend: {
+      top: 10,
+      textStyle: { color: isDark ? '#94a3b8' : '#475569', fontSize: 11 },
+      type: 'scroll'
+    },
+    grid: { left: '8%', right: '6%', top: '16%', bottom: '12%' },
+    xAxis: {
+      name: 'False Positive Rate (1 - Specificity)',
+      nameLocation: 'middle',
+      nameGap: 30,
+      min: 0,
+      max: 1,
+      splitLine: { lineStyle: { color: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' } },
+      axisLabel: { color: isDark ? '#94a3b8' : '#475569' }
+    },
+    yAxis: {
+      name: 'True Positive Rate (Sensitivity / Recall)',
+      nameLocation: 'middle',
+      nameGap: 35,
+      min: 0,
+      max: 1.05,
+      splitLine: { lineStyle: { color: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' } },
+      axisLabel: { color: isDark ? '#94a3b8' : '#475569' }
+    },
+    series: series
+  };
+
+  state.charts.roc.setOption(option);
+}
+
+// 4. Clinical Confusion Matrix Interactive Heatmap
+function renderCMChart(isDark) {
+  const dom = document.getElementById('chartCM');
+  if (!dom || !state.data) return;
+
+  if (state.charts.cm) state.charts.cm.dispose();
+  state.charts.cm = echarts.init(dom, isDark ? 'dark' : null);
+
+  const cmSelect = document.getElementById('cmModelSelect');
+  if (cmSelect) {
+    state.selectedCMModel = cmSelect.value;
+    cmSelect.onchange = () => {
+      state.selectedCMModel = cmSelect.value;
+      renderCMChart(document.body.classList.contains('dark-theme'));
+    };
+  }
+
+  const modelCM = state.data.confusion_matrices[state.selectedCMModel];
+  if (!modelCM) return;
+
+  // Update card statistics on the right
+  document.getElementById('cmFNVal').textContent = modelCM.fn;
+  document.getElementById('cmFPVal').textContent = modelCM.fp;
+  document.getElementById('cmAccVal').textContent = `${(modelCM.accuracy * 100).toFixed(2)}%`;
+  document.getElementById('cmRecVal').textContent = `${(modelCM.recall * 100).toFixed(2)}%`;
+  document.getElementById('cmSpecVal').textContent = `${(modelCM.specificity * 100).toFixed(2)}%`;
+  document.getElementById('cmPrecVal').textContent = `${(modelCM.precision * 100).toFixed(2)}%`;
+  document.getElementById('cmF1Val').textContent = modelCM.f1.toFixed(4);
+  document.getElementById('cmMCCVal').textContent = modelCM.mcc.toFixed(4);
+
+  const xLabels = ['Pred Benign (0)', 'Pred Malignant (1)'];
+  const yLabels = ['True Benign (0)', 'True Malignant (1)'];
+
+  const option = {
+    backgroundColor: 'transparent',
+    tooltip: {
+      position: 'top',
+      formatter: (p) => {
+        const x = p.value[0], y = p.value[1], val = p.value[2];
+        let meaning = '';
+        if (x === 0 && y === 0) meaning = 'True Negative (Benign correctly identified)';
+        else if (x === 1 && y === 0) meaning = 'False Positive (False alarm / benign called malignant)';
+        else if (x === 0 && y === 1) meaning = 'FALSE NEGATIVE (Lethal miss: malignant called benign!)';
+        else meaning = 'True Positive (Malignant correctly identified)';
+        return `<strong>${meaning}</strong><br/>Patient Count: <strong>${val}</strong> (${((val / 114) * 100).toFixed(1)}% of test set)`;
+      }
+    },
+    grid: { left: '18%', right: '12%', top: '15%', bottom: '15%' },
+    xAxis: {
+      type: 'category',
+      data: xLabels,
+      splitArea: { show: true },
+      axisLabel: { color: isDark ? '#f8fafc' : '#0f172a', fontWeight: 'bold' }
+    },
+    yAxis: {
+      type: 'category',
+      data: yLabels,
+      splitArea: { show: true },
+      axisLabel: { color: isDark ? '#f8fafc' : '#0f172a', fontWeight: 'bold' }
+    },
+    visualMap: {
+      min: 0,
+      max: 72,
+      calculable: false,
+      orient: 'horizontal',
+      left: 'center',
+      bottom: 0,
+      textStyle: { color: isDark ? '#94a3b8' : '#475569' },
+      inRange: {
+        color: isDark ? ['#1e293b', '#2563eb', '#38bdf8'] : ['#f1f5f9', '#93c5fd', '#2563eb']
+      }
+    },
+    series: [{
+      name: 'Confusion Matrix',
+      type: 'heatmap',
+      data: modelCM.matrix,
+      label: {
+        show: true,
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#ffffff',
+        formatter: (p) => p.value[2]
+      },
+      itemStyle: {
+        borderColor: isDark ? '#0a0f1d' : '#ffffff',
+        borderWidth: 3
+      }
+    }]
+  };
+
+  state.charts.cm.setOption(option);
+}
+
+// 5. Interactive 30x30 Pearson Correlation Heatmap
+function renderCorrHeatmap(isDark) {
+  const dom = document.getElementById('chartCorr');
+  if (!dom || !state.data) return;
+
+  if (state.charts.corr) state.charts.corr.dispose();
+  state.charts.corr = echarts.init(dom, isDark ? 'dark' : null);
+
+  const corrData = state.data.correlation_matrix;
+  const shortNames = corrData.features.map(f =>
+    f.replace('mean ', 'm_').replace('worst ', 'w_').replace('error', 'err')
+  );
+
+  const option = {
+    backgroundColor: 'transparent',
+    tooltip: {
+      position: 'top',
+      formatter: (p) => {
+        const f1 = corrData.features[p.value[0]];
+        const f2 = corrData.features[p.value[1]];
+        const r = p.value[2];
+        const status = Math.abs(r) >= 0.90 ? '<br/><span style="color:#f43f5e">★ Extreme Collinearity (|r| ≥ 0.90)</span>' : '';
+        return `<strong>${f1}</strong> ↔ <strong>${f2}</strong><br/>Pearson Correlation: <strong>r = ${r}</strong>${status}`;
+      }
+    },
+    grid: { left: '18%', right: '8%', top: '8%', bottom: '22%' },
+    xAxis: {
+      type: 'category',
+      data: shortNames,
+      axisLabel: { interval: 0, rotate: 60, fontSize: 9, color: isDark ? '#94a3b8' : '#475569' }
+    },
+    yAxis: {
+      type: 'category',
+      data: shortNames,
+      axisLabel: { interval: 0, fontSize: 9, color: isDark ? '#94a3b8' : '#475569' }
+    },
+    visualMap: {
+      min: -1,
+      max: 1,
+      calculable: true,
+      orient: 'horizontal',
+      left: 'center',
+      bottom: 5,
+      textStyle: { color: isDark ? '#94a3b8' : '#475569' },
+      inRange: {
+        color: ['#3b82f6', '#1e293b', '#f43f5e']
+      }
+    },
+    dataZoom: [
+      { type: 'inside', xAxisIndex: [0] },
+      { type: 'inside', yAxisIndex: [0] }
+    ],
+    series: [{
+      name: 'Correlation',
+      type: 'heatmap',
+      data: corrData.data,
+      itemStyle: {
+        borderColor: isDark ? '#0f172a' : '#ffffff',
+        borderWidth: 0.5
+      }
+    }]
+  };
+
+  state.charts.corr.setOption(option);
+}
+
+// 6. Top Variance Inflation Factors (VIF) Bar Chart
+function renderVIFChart(isDark) {
+  const dom = document.getElementById('chartVIF');
+  if (!dom || !state.data) return;
+
+  if (state.charts.vif) state.charts.vif.dispose();
+  state.charts.vif = echarts.init(dom, isDark ? 'dark' : null);
+
+  const top15 = state.data.vif_ranking.slice(0, 15).reverse();
+  const yData = top15.map(d => d.feature);
+  const xData = top15.map(d => d.vif);
+
+  const option = {
+    backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      formatter: (p) => {
+        const val = p[0].value;
+        const alert = val > 10 ? '<br/><span style="color:#f43f5e">⚠ Severe Multicollinear Redundancy (VIF > 10)</span>' : '';
+        return `<strong>${p[0].name}</strong><br/>Variance Inflation Factor: <strong>${val.toLocaleString()}</strong>${alert}`;
+      }
+    },
+    grid: { left: '30%', right: '10%', top: '10%', bottom: '10%' },
+    xAxis: {
+      type: 'log',
+      name: 'VIF (Logarithmic Scale)',
+      nameLocation: 'middle',
+      nameGap: 25,
+      splitLine: { lineStyle: { color: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' } },
+      axisLabel: { color: isDark ? '#94a3b8' : '#475569' }
+    },
+    yAxis: {
+      type: 'category',
+      data: yData,
+      axisLabel: { color: isDark ? '#f8fafc' : '#0f172a', fontSize: 10, fontWeight: 'bold' }
+    },
+    series: [{
+      name: 'VIF',
+      type: 'bar',
+      data: xData,
+      itemStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+          { offset: 0, color: '#f43f5e' },
+          { offset: 1, color: '#fb7185' }
+        ]),
+        borderRadius: [0, 4, 4, 0]
+      },
+      markLine: {
+        silent: true,
+        data: [{
+          xAxis: 10,
+          name: 'VIF=10 Threshold',
+          lineStyle: { color: '#fbbf24', type: 'dashed', width: 2 }
+        }]
+      }
+    }]
+  };
+
+  state.charts.vif.setOption(option);
+}
+
+// 7. Comparative Feature Importance Grouped Bar Chart
+function renderFeatureImpChart(isDark) {
+  const dom = document.getElementById('chartFeatImp');
+  if (!dom || !state.data) return;
+
+  if (state.charts.featImp) state.charts.featImp.dispose();
+  state.charts.featImp = echarts.init(dom, isDark ? 'dark' : null);
+
+  const featData = state.data.feature_importance;
+
+  const option = {
+    backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      formatter: (p) => {
+        let text = `<strong>${p[0].name}</strong><br/>`;
+        p.forEach(s => {
+          text += `${s.marker} ${s.seriesName}: <strong>${s.value}%</strong> (Relative Weight)<br/>`;
+        });
+        return text;
+      }
+    },
+    legend: {
+      top: 10,
+      textStyle: { color: isDark ? '#94a3b8' : '#475569' },
+      data: ['Decision Tree (Gini MDI)', 'Linear SVM (|w| Hyperplane)', 'RBF SVM (Permutation Drop)']
+    },
+    grid: { left: '8%', right: '5%', top: '16%', bottom: '26%' },
+    xAxis: {
+      type: 'category',
+      data: featData.features,
+      axisLabel: { interval: 0, rotate: 35, color: isDark ? '#94a3b8' : '#475569', fontSize: 10 }
+    },
+    yAxis: {
+      type: 'value',
+      name: 'Relative Importance (0 - 100%)',
+      splitLine: { lineStyle: { color: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' } },
+      axisLabel: { color: isDark ? '#94a3b8' : '#475569' }
+    },
+    series: [
+      {
+        name: 'Decision Tree (Gini MDI)',
+        type: 'bar',
+        data: featData.dt_gini,
+        itemStyle: { color: '#10b981', borderRadius: [4, 4, 0, 0] }
+      },
+      {
+        name: 'Linear SVM (|w| Hyperplane)',
+        type: 'bar',
+        data: featData.lin_weights,
+        itemStyle: { color: '#f59e0b', borderRadius: [4, 4, 0, 0] }
+      },
+      {
+        name: 'RBF SVM (Permutation Drop)',
+        type: 'bar',
+        data: featData.rbf_perm,
+        itemStyle: { color: '#8b5cf6', borderRadius: [4, 4, 0, 0] }
+      }
+    ]
+  };
+
+  state.charts.featImp.setOption(option);
+}
+
+// 8. Runtime & Microsecond Latency Bar Chart
+function renderLatencyChart(isDark) {
+  const dom = document.getElementById('chartLatency');
+  if (!dom || !state.data) return;
+
+  if (state.charts.latency) state.charts.latency.dispose();
+  state.charts.latency = echarts.init(dom, isDark ? 'dark' : null);
+
+  const latData = state.data.latency_benchmarks;
+
+  const option = {
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    legend: {
+      top: 10,
+      textStyle: { color: isDark ? '#94a3b8' : '#475569' },
+      data: ['Inference Latency (µs / sample)', 'Training Wall-Clock Time (ms)']
+    },
+    grid: { left: '8%', right: '8%', top: '18%', bottom: '18%' },
+    xAxis: {
+      type: 'category',
+      data: latData.models,
+      axisLabel: { interval: 0, rotate: 20, color: isDark ? '#94a3b8' : '#475569', fontSize: 10 }
+    },
+    yAxis: [
+      {
+        type: 'value',
+        name: 'Inference Latency (µs)',
+        splitLine: { lineStyle: { color: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' } },
+        axisLabel: { color: isDark ? '#94a3b8' : '#475569' }
+      },
+      {
+        type: 'value',
+        name: 'Training Fit Time (ms)',
+        splitLine: { show: false },
+        axisLabel: { color: isDark ? '#94a3b8' : '#475569' }
+      }
+    ],
+    series: [
+      {
+        name: 'Inference Latency (µs / sample)',
+        type: 'bar',
+        yAxisIndex: 0,
+        data: latData.inference_latency_us,
+        itemStyle: { color: '#38bdf8', borderRadius: [4, 4, 0, 0] }
+      },
+      {
+        name: 'Training Wall-Clock Time (ms)',
+        type: 'bar',
+        yAxisIndex: 1,
+        data: latData.train_time_ms,
+        itemStyle: { color: '#a855f7', borderRadius: [4, 4, 0, 0] }
+      }
+    ]
+  };
+
+  state.charts.latency.setOption(option);
+}
+
+// Benchmark Tabs Controller
 function initBenchmarkTabs() {
-  const tabBtns = document.querySelectorAll('.bench-tab-btn');
-  const tabPanes = document.querySelectorAll('.tab-pane');
+  const btns = document.querySelectorAll('.bench-tab-btn');
+  const panes = document.querySelectorAll('.tab-pane');
 
-  tabBtns.forEach(btn => {
+  btns.forEach(btn => {
     btn.addEventListener('click', () => {
-      tabBtns.forEach(b => b.classList.remove('active'));
-      tabPanes.forEach(p => p.classList.remove('active'));
+      btns.forEach(b => b.classList.remove('active'));
+      panes.forEach(p => p.classList.remove('active'));
 
       btn.classList.add('active');
       const targetId = btn.dataset.tab;
       const targetPane = document.getElementById(targetId);
       if (targetPane) {
         targetPane.classList.add('active');
+        // Resize newly visible ECharts instances
+        setTimeout(() => {
+          Object.values(state.charts).forEach(c => c && c.resize());
+        }, 50);
       }
     });
   });

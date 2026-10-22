@@ -1471,11 +1471,144 @@ body.light-theme .app-footer {
   color: var(--text-muted);
 }
 
+/* ==========================================================================
+   Apache ECharts Styling & Enhanced Component Rules
+   ========================================================================== */
+
+.echarts-container {
+  width: 100%;
+  position: relative;
+  border-radius: var(--radius-sm);
+  transition: opacity var(--transition-fast);
+}
+
+.echarts-card-wrapper {
+  background: rgba(10, 15, 29, 0.6);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+body.light-theme .echarts-card-wrapper {
+  background: rgba(241, 245, 249, 0.6);
+}
+
+.radar-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  margin-bottom: 18px;
+}
+.radar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.84rem;
+  margin-bottom: 6px;
+}
+.text-xs { font-size: 0.72rem; }
+
+/* Confusion Matrix Interactive Grid */
+.cm-dropdown-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.custom-select {
+  background: rgba(15, 23, 42, 0.85);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+body.light-theme .custom-select {
+  background: #ffffff;
+  color: #0f172a;
+}
+.custom-select:focus {
+  border-color: var(--accent-cyan);
+}
+
+.cm-display-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  gap: 28px;
+  align-items: center;
+}
+.cm-stats-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cm-highlight-card {
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+}
+.cm-highlight-card.border-rose {
+  border-color: rgba(244, 63, 94, 0.35);
+  background: rgba(244, 63, 94, 0.06);
+}
+.cm-highlight-card.border-emerald {
+  border-color: rgba(16, 185, 129, 0.35);
+  background: rgba(16, 185, 129, 0.06);
+}
+.cm-big-num {
+  font-family: var(--font-heading);
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.cm-card-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.cm-card-desc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.cm-details-list {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cm-detail-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+}
+.cm-detail-row span { color: var(--text-secondary); }
+.cm-detail-row strong { font-family: var(--font-mono); color: var(--accent-cyan); }
+
+.chart-toolbox-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* Responsive Breakpoints */
 @media (max-width: 1200px) {
   .hero-grid { grid-template-columns: 1fr; }
   .simulator-layout { grid-template-columns: 1fr; }
   .panel-split-layout { grid-template-columns: 1fr; }
+  .cm-display-grid { grid-template-columns: 1fr; }
   .critique-grid { grid-template-columns: 1fr; }
   .feature-comparison-grid { grid-template-columns: 1fr; }
   .submission-cards-grid { grid-template-columns: 1fr; }
@@ -1489,3 +1622,4 @@ body.light-theme .app-footer {
   .stats-metrics-grid { grid-template-columns: repeat(2, 1fr); }
   .footer-container { flex-direction: column; }
 }
+
