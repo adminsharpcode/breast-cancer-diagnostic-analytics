@@ -3,7 +3,7 @@
 **Vellore Institute of Technology | School of Computer Science and Engineering**  
 **Date:** 30.10.2026 | **Slot:** E1 + TE1
 
-[![Live Dashboard on Vercel](https://img.shields.io/badge/Live_Dashboard-Vercel-black?style=for-the-badge&logo=vercel)](https://oncovision-ai.vercel.app)
+[![Live Dashboard on Vercel](https://img.shields.io/badge/Live_Dashboard-Vercel-black?style=for-the-badge&logo=vercel)](https://oncovision-ai-healthcare-analytics.vercel.app/)
 [![Python 3.12](https://img.shields.io/badge/Python-3.12-blue?style=for-the-badge&logo=python)](https://python.org)
 [![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-1.9.0-orange?style=for-the-badge&logo=scikitlearn)](https://scikit-learn.org)
 [![Academic PDF](https://img.shields.io/badge/Report-Publication_PDF-red?style=for-the-badge&logo=adobeacrobatreader)](MACSE504_CaseStudy_Report_26MML0045.pdf)
@@ -78,8 +78,10 @@ Holdout Test Evaluation ($N=114$ patients, 42 Malignant, 72 Benign):
 
 ## 📈 Key Visualizations & Research Figures
 
-| ROC Discrimination Benchmarks | Clinical Confusion Matrices Grid |
+| Live Web Studio Overview | Dual 2D & 3D Manifold Studio |
 | :---: | :---: |
+| ![Figure 9](figures/fig9_dashboard_overview.png) | ![Figure 10](figures/fig10_3d_manifold_studio.png) |
+| **ROC Discrimination Benchmarks** | **Clinical Confusion Matrices Grid** |
 | ![Figure 3](figures/fig3_roc_comparison.png) | ![Figure 4](figures/fig4_confusion_matrices.png) |
 | **Multicollinearity Heatmap** | **2D Latent Decision Boundaries** |
 | ![Figure 1](figures/fig1_correlation_matrix.png) | ![Figure 7](figures/fig7_decision_boundaries_2d.png) |

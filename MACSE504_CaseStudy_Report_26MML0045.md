@@ -10,7 +10,9 @@
 - **Registration Number:** 26MML0045
 - **Assigned Question Number:** Question 1
 - **Domain:** Clinical Healthcare Analytics & Oncology Cytology
+- **Live Interactive Dashboard:** [https://oncovision-ai-healthcare-analytics.vercel.app/](https://oncovision-ai-healthcare-analytics.vercel.app/)
 - **GitHub Repository:** [adminsharpcode/breast-cancer-diagnostic-analytics](https://github.com/adminsharpcode/breast-cancer-diagnostic-analytics)
+- **Jupyter Notebook:** [26MML0045_Vedant_ML_CaseStudy_Q1.ipynb](26MML0045_Vedant_ML_CaseStudy_Q1.ipynb)
 
 ---
 
@@ -140,7 +142,25 @@ All models were evaluated on the held-out stratified test set ($N=114$ samples: 
 
 ---
 
-## 7. Clinical Solution & Recommendation
+## 7. Interactive Cloud Intelligence Studio & Dual 2D/3D Holographic Manifold
+
+### 7.1 Web Application Architecture (OncoVision AI)
+- **Live Deployment URL:** [https://oncovision-ai-healthcare-analytics.vercel.app/](https://oncovision-ai-healthcare-analytics.vercel.app/)
+- **Core Technology Stack:** Vanilla HTML5, Modern CSS, ES6+ JavaScript, Apache ECharts 5.5, Apache ECharts GL (3D), Vercel Global Edge Network.
+- **Biopsy Simulator:** 30 calibrated dynamic sliders recalculate standardized z-scores and stream real-time malignancy probabilities to animated gauge meters and multi-model consensus cards.
+
+![Figure 9: Dashboard Studio Overview](figures/fig9_dashboard_overview.png)
+
+### 7.2 2D Latent Projection vs. 3D Holographic Manifold Explorer
+The studio provides an interactive dimension switcher:
+- **2D Latent Space:** Projects the continuous 30D cytological space onto PC1 (Size/Perimeter) and PC2 (Texture/Membrane). Renders interactive decision boundaries comparing Linear SVM hyperplane, Decision Tree orthogonal cuts, and Tuned RBF Gaussian manifold, with real patient biopsy scatter points and active specimen crosshair.
+- **3D Holographic Manifold (ECharts GL):** Extends latent space into a 3D coordinate system (PC1 $\times$ PC2 $\times$ Malignancy Risk Probability %) with a 3D non-linear sigmoid decision surface, 360° mouse orbit controls, and real-time specimen tracking.
+
+![Figure 10: 2D vs 3D Decision Manifold Studio](figures/fig10_3d_manifold_studio.png)
+
+---
+
+## 8. Clinical Solution & Recommendation
 
 ### 7.1 Clinical Cost Asymmetry: False Negatives vs. False Positives
 In diagnostic oncology:

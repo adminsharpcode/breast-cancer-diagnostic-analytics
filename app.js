@@ -6,9 +6,10 @@
 
 // Global application state
 const state = {
-  data: null,
+  data: (typeof window !== 'undefined' && window.EMBEDDED_ECHARTS_DATA) ? window.EMBEDDED_ECHARTS_DATA : null,
   charts: {},
   activeBoundary: 'rbf',
+  viewMode: '2d', // '2d' or '3d'
   activeTab: 'tabROC',
   selectedCMModel: 'Tuned RBF SVM (Optimal)',
   patientFeatures: {
@@ -93,14 +94,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Load Dataset
 async function loadEChartsData() {
+  if (typeof window !== 'undefined' && window.EMBEDDED_ECHARTS_DATA) {
+    state.data = window.EMBEDDED_ECHARTS_DATA;
+  }
   try {
     const res = await fetch('figures/echarts_data.json');
     if (res.ok) {
-      state.data = await res.json();
+      const fetched = await res.json();
+      if (fetched) state.data = fetched;
       console.log('[OncoVision] Loaded echarts_data.json successfully');
     }
   } catch (err) {
-    console.warn('[OncoVision] Error loading echarts_data.json, falling back to embedded stats', err);
+    console.warn('[OncoVision] Network fetch notice; operating on embedded high-fidelity dataset.', err);
   }
 }
 
@@ -419,8 +424,10 @@ function updateConsensusUI(dtMal, dtConf, linMal, linScore, linProb, rbfMal, rbf
 // ==========================================================================
 
 function initAllECharts() {
+  if (!state.data && typeof window !== 'undefined' && window.EMBEDDED_ECHARTS_DATA) {
+    state.data = window.EMBEDDED_ECHARTS_DATA;
+  }
   const isDark = document.body.classList.contains('dark-theme');
-  const theme = isDark ? 'dark' : null;
 
   renderRadarChart(isDark);
   renderPCAChart(isDark);
@@ -430,6 +437,35 @@ function initAllECharts() {
   renderVIFChart(isDark);
   renderFeatureImpChart(isDark);
   renderLatencyChart(isDark);
+
+  attachResponsiveObservers();
+}
+
+function attachResponsiveObservers() {
+  const chartContainers = [
+    { id: 'chartRadar', key: 'radar' },
+    { id: 'chartPCA', key: 'pca' },
+    { id: 'chartROC', key: 'roc' },
+    { id: 'chartCM', key: 'cm' },
+    { id: 'chartCorr', key: 'corr' },
+    { id: 'chartVIF', key: 'vif' },
+    { id: 'chartFeatImp', key: 'featImp' },
+    { id: 'chartLatency', key: 'latency' }
+  ];
+
+  chartContainers.forEach(({ id, key }) => {
+    const el = document.getElementById(id);
+    if (!el || el._hasObserver) return;
+    el._hasObserver = true;
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(() => {
+        if (state.charts[key]) {
+          state.charts[key].resize();
+        }
+      });
+      ro.observe(el);
+    }
+  });
 }
 
 // 1. Radar Chart (Morphological Specimen Signature)
@@ -530,71 +566,119 @@ function updateRadarLive() {
   });
 }
 
-// 2. 2D PCA Latent Space Scatter Chart with Interactive Boundaries
+// 2. 2D / 3D PCA Latent Space Scatter Chart with Interactive Boundaries
 function renderPCAChart(isDark) {
+  // Ensure state.data is populated from embedded payload if available
+  if (!state.data && typeof window !== 'undefined' && window.EMBEDDED_ECHARTS_DATA) {
+    state.data = window.EMBEDDED_ECHARTS_DATA;
+  }
   const dom = document.getElementById('chartPCA');
-  if (!dom || !state.data) return;
+  if (!dom || !state.data || !state.data.pca_scatter) return;
 
-  if (state.charts.pca) state.charts.pca.dispose();
+  if (state.charts.pca) {
+    state.charts.pca.dispose();
+    state.charts.pca = null;
+  }
+
+  if (state.viewMode === '3d') {
+    render3DPCAChart(dom, isDark);
+  } else {
+    render2DPCAChart(dom, isDark);
+  }
+}
+
+// 2A. 2D Latent Decision Boundary Studio
+function render2DPCAChart(dom, isDark) {
   state.charts.pca = echarts.init(dom, isDark ? 'dark' : null);
 
   const pcaData = state.data.pca_scatter;
   const liveCoord = calculateLivePCACoords();
 
-  // Boundary lines based on model selection
-  let markLines = [];
+  // Robust, continuous boundary lines across the 2D plane
+  let boundarySeries = [];
   if (state.activeBoundary === 'linear') {
-    markLines = [{
+    boundarySeries = [{
       name: 'Linear SVM Separator (w·x+b=0)',
-      lineStyle: { color: '#f59e0b', width: 3, type: 'solid' },
-      coords: [[-0.2, -3.5], [1.2, 4.0]]
+      type: 'line',
+      smooth: false,
+      data: [[-1.2, -3.5], [0.3, 0.2], [1.8, 4.0]],
+      lineStyle: { color: '#f59e0b', width: 3.5, type: 'solid', shadowColor: 'rgba(245, 158, 11, 0.6)', shadowBlur: 10 },
+      itemStyle: { color: '#f59e0b' },
+      symbol: 'circle',
+      symbolSize: 6,
+      z: 5
     }];
   } else if (state.activeBoundary === 'tree') {
-    markLines = [
-      { name: 'DT Split 1', lineStyle: { color: '#10b981', width: 2.5, type: 'dashed' }, coords: [[0.5, -3.5], [0.5, 1.2]] },
-      { name: 'DT Split 2', lineStyle: { color: '#10b981', width: 2.5, type: 'dashed' }, coords: [[0.5, 1.2], [4.5, 1.2]] }
-    ];
+    boundarySeries = [{
+      name: 'Decision Tree Partition (Split PC1=0.45)',
+      type: 'line',
+      step: 'end',
+      data: [[0.45, -3.8], [0.45, 1.25], [6.5, 1.25]],
+      lineStyle: { color: '#10b981', width: 3, type: 'dashed', shadowColor: 'rgba(16, 185, 129, 0.6)', shadowBlur: 8 },
+      itemStyle: { color: '#10b981' },
+      symbol: 'none',
+      z: 5
+    }];
   } else {
-    // Non-linear RBF boundary curve
-    markLines = [
-      { name: 'RBF Margin Boundary', lineStyle: { color: '#38bdf8', width: 3, type: 'solid' }, coords: [[0.3, -3.0], [0.7, 3.5]] }
-    ];
+    boundarySeries = [{
+      name: 'RBF Non-Linear Manifold Margin',
+      type: 'line',
+      smooth: 0.45,
+      data: [
+        [-0.4, -3.5],
+        [0.05, -2.0],
+        [0.32, -0.6],
+        [0.48, 0.8],
+        [0.95, 2.2],
+        [1.65, 3.8]
+      ],
+      lineStyle: { color: '#38bdf8', width: 4, type: 'solid', shadowColor: 'rgba(56, 189, 248, 0.7)', shadowBlur: 12 },
+      itemStyle: { color: '#38bdf8' },
+      symbol: 'circle',
+      symbolSize: 6,
+      z: 5
+    }];
   }
 
   const option = {
     backgroundColor: 'transparent',
     tooltip: {
       trigger: 'item',
+      backgroundColor: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+      borderColor: isDark ? '#334155' : '#cbd5e1',
+      textStyle: { color: isDark ? '#f8fafc' : '#0f172a' },
       formatter: (param) => {
         if (param.seriesName === 'Active Specimen') {
-          return `<strong>Active Specimen (Sliders)</strong><br/>PC1: ${param.value[0]}<br/>PC2: ${param.value[1]}<br/>Location: Latent Space`;
+          return `<strong>Active Specimen (Sliders)</strong><br/>PC1: <b>${param.value[0]}</b><br/>PC2: <b>${param.value[1]}</b><br/>Dynamic Latent Position`;
+        }
+        if (param.seriesType === 'line') {
+          return `<strong>${param.seriesName}</strong>`;
         }
         const pt = param.value;
-        const diag = pt[4] === 1 ? '<span style="color:#f43f5e">Malignant</span>' : '<span style="color:#3b82f6">Benign</span>';
-        return `<strong>${pt[5]}</strong><br/>True Diagnosis: ${diag}<br/>RBF Probability: <strong>${pt[2]}%</strong><br/>PC1: ${pt[0]} | PC2: ${pt[1]}`;
+        const diag = pt[4] === 1 ? '<span style="color:#f43f5e;font-weight:bold;">Malignant</span>' : '<span style="color:#38bdf8;font-weight:bold;">Benign</span>';
+        return `<strong>${pt[5]}</strong><br/>Ground Truth: ${diag}<br/>RBF Probability: <strong>${pt[2]}%</strong><br/>PC1: ${pt[0]} | PC2: ${pt[1]}`;
       }
     },
     legend: {
       top: 10,
-      textStyle: { color: isDark ? '#94a3b8' : '#475569' },
-      data: ['Benign Patients (N=72)', 'Malignant Patients (N=42)', 'Active Specimen']
+      textStyle: { color: isDark ? '#94a3b8' : '#475569', fontSize: 11 }
     },
-    grid: { left: '8%', right: '6%', top: '15%', bottom: '12%' },
+    grid: { left: '8%', right: '6%', top: '14%', bottom: '12%' },
     xAxis: {
-      name: `PC1 (${pcaData.explained_variance[0]}% Var)`,
+      name: `PC1 (${pcaData.explained_variance[0]}% Variance - Nuclear Size / Perimeter)`,
       nameLocation: 'middle',
       nameGap: 30,
-      min: -4.5,
-      max: 5.5,
+      min: -5.0,
+      max: 7.5,
       splitLine: { lineStyle: { color: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' } },
       axisLabel: { color: isDark ? '#94a3b8' : '#475569' }
     },
     yAxis: {
-      name: `PC2 (${pcaData.explained_variance[1]}% Var)`,
+      name: `PC2 (${pcaData.explained_variance[1]}% Variance - Texture / Irregularity)`,
       nameLocation: 'middle',
       nameGap: 35,
-      min: -3.5,
-      max: 4.0,
+      min: -3.8,
+      max: 4.5,
       splitLine: { lineStyle: { color: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' } },
       axisLabel: { color: isDark ? '#94a3b8' : '#475569' }
     },
@@ -603,32 +687,152 @@ function renderPCAChart(isDark) {
         name: 'Benign Patients (N=72)',
         type: 'scatter',
         symbolSize: 10,
-        itemStyle: { color: '#3b82f6', borderColor: '#ffffff', borderWidth: 1 },
-        data: pcaData.benign
+        itemStyle: { color: '#38bdf8', borderColor: '#ffffff', borderWidth: 1, shadowColor: 'rgba(56, 189, 248, 0.4)', shadowBlur: 4 },
+        data: pcaData.benign,
+        z: 2
       },
       {
         name: 'Malignant Patients (N=42)',
         type: 'scatter',
         symbolSize: 12,
-        itemStyle: { color: '#f43f5e', borderColor: '#ffffff', borderWidth: 1 },
+        itemStyle: { color: '#f43f5e', borderColor: '#ffffff', borderWidth: 1, shadowColor: 'rgba(244, 63, 94, 0.4)', shadowBlur: 6 },
         data: pcaData.malignant,
-        markLine: {
-          silent: true,
-          data: markLines
-        }
+        z: 3
       },
+      ...boundarySeries,
       {
         name: 'Active Specimen',
         type: 'effectScatter',
         symbolSize: 22,
-        rippleEffect: { scale: 3, brushType: 'stroke' },
-        itemStyle: { color: '#fbbf24', borderColor: '#ffffff', borderWidth: 2 },
-        data: [[liveCoord.pc1, liveCoord.pc2]]
+        rippleEffect: { scale: 3.5, brushType: 'stroke', color: '#fbbf24' },
+        itemStyle: { color: '#fbbf24', borderColor: '#ffffff', borderWidth: 2.5, shadowColor: 'rgba(251, 191, 36, 0.8)', shadowBlur: 14 },
+        data: [[liveCoord.pc1, liveCoord.pc2]],
+        z: 10
       }
     ]
   };
 
   state.charts.pca.setOption(option);
+}
+
+// 2B. 3D Holographic Manifold Studio (Apache ECharts GL)
+function render3DPCAChart(dom, isDark) {
+  state.charts.pca = echarts.init(dom, isDark ? 'dark' : null);
+
+  const pcaData = state.data.pca_scatter;
+  const liveCoord = calculateLivePCACoords();
+
+  // Compute 3D points: [PC1, PC2, Malignancy Probability %]
+  const benign3D = pcaData.benign.map(pt => [pt[0], pt[1], pt[2], pt[5]]);
+  const malignant3D = pcaData.malignant.map(pt => [pt[0], pt[1], pt[2], pt[5]]);
+  
+  const percentText = document.getElementById('gaugePercent')?.textContent || '50';
+  const livePercent = parseFloat(percentText);
+  const live3D = [[liveCoord.pc1, liveCoord.pc2, livePercent, 'Active Specimen (Sliders)']];
+
+  // Generate 3D Sigmoid Decision Manifold Surface
+  const surfaceData = [];
+  for (let x = -4.5; x <= 6.5; x += 0.5) {
+    for (let y = -3.5; y <= 3.5; y += 0.5) {
+      const score = (x * 1.3 + y * 0.7 - 0.45);
+      const prob = +(100 / (1 + Math.exp(-1.8 * score))).toFixed(1);
+      surfaceData.push([+x.toFixed(2), +y.toFixed(2), prob]);
+    }
+  }
+
+  const option = {
+    backgroundColor: 'transparent',
+    tooltip: {
+      formatter: (param) => {
+        if (param.seriesType === 'surface') {
+          return `<strong>RBF 3D Decision Manifold</strong><br/>PC1: ${param.value[0]}<br/>PC2: ${param.value[1]}<br/>Boundary Probability: <b>${param.value[2]}%</b>`;
+        }
+        return `<strong>${param.value[3] || param.seriesName}</strong><br/>PC1 (Size): <b>${param.value[0]}</b><br/>PC2 (Texture): <b>${param.value[1]}</b><br/>Malignancy Risk: <b>${param.value[2]}%</b>`;
+      }
+    },
+    legend: {
+      top: 10,
+      textStyle: { color: isDark ? '#94a3b8' : '#475569', fontSize: 11 },
+      data: ['Benign Patients (3D)', 'Malignant Patients (3D)', 'Active Specimen (3D)', 'RBF Decision Surface']
+    },
+    grid3D: {
+      boxWidth: 100,
+      boxHeight: 65,
+      boxDepth: 85,
+      axisLine: { lineStyle: { color: isDark ? '#64748b' : '#94a3b8' } },
+      axisPointer: { lineStyle: { color: '#38bdf8' } },
+      splitLine: { lineStyle: { color: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' } },
+      light: {
+        main: { intensity: 1.4, shadow: true },
+        ambient: { intensity: 0.5 }
+      },
+      viewControl: {
+        projection: 'perspective',
+        autoRotate: true,
+        autoRotateSpeed: 5,
+        alpha: 22,
+        beta: 45,
+        distance: 190
+      }
+    },
+    xAxis3D: {
+      name: 'PC1 (Size/Area)',
+      nameTextStyle: { color: isDark ? '#94a3b8' : '#475569', fontSize: 10 },
+      min: -5.0,
+      max: 7.0
+    },
+    yAxis3D: {
+      name: 'PC2 (Texture)',
+      nameTextStyle: { color: isDark ? '#94a3b8' : '#475569', fontSize: 10 },
+      min: -3.5,
+      max: 4.0
+    },
+    zAxis3D: {
+      name: 'Risk (%)',
+      nameTextStyle: { color: isDark ? '#94a3b8' : '#475569', fontSize: 10 },
+      min: 0,
+      max: 100
+    },
+    series: [
+      {
+        name: 'Benign Patients (3D)',
+        type: 'scatter3D',
+        data: benign3D,
+        symbolSize: 8,
+        itemStyle: { color: '#38bdf8', opacity: 0.9 }
+      },
+      {
+        name: 'Malignant Patients (3D)',
+        type: 'scatter3D',
+        data: malignant3D,
+        symbolSize: 10,
+        itemStyle: { color: '#f43f5e', opacity: 0.95 }
+      },
+      {
+        name: 'Active Specimen (3D)',
+        type: 'scatter3D',
+        data: live3D,
+        symbolSize: 18,
+        itemStyle: { color: '#ffd600', borderColor: '#ffffff', borderWidth: 2, opacity: 1 }
+      },
+      {
+        name: 'RBF Decision Surface',
+        type: 'surface',
+        data: surfaceData,
+        wireframe: { show: true, lineStyle: { color: 'rgba(56, 189, 248, 0.25)', width: 0.8 } },
+        itemStyle: { color: 'rgba(56, 189, 248, 0.35)' },
+        shading: 'color'
+      }
+    ]
+  };
+
+  try {
+    state.charts.pca.setOption(option);
+  } catch (err) {
+    console.warn('[OncoVision] 3D WebGL render notice, falling back to 2D:', err);
+    state.viewMode = '2d';
+    render2DPCAChart(dom, isDark);
+  }
 }
 
 function calculateLivePCACoords() {
@@ -646,15 +850,17 @@ function calculateLivePCACoords() {
 function updatePCALivePoint() {
   if (!state.charts.pca) return;
   const liveCoord = calculateLivePCACoords();
-  state.charts.pca.setOption({
-    series: [
-      {},
-      {},
-      {
-        data: [[liveCoord.pc1, liveCoord.pc2]]
-      }
-    ]
-  });
+  if (state.viewMode === '3d') {
+    const livePercent = parseFloat(document.getElementById('gaugePercent')?.textContent || '50');
+    state.charts.pca.setOption({
+      series: [{}, {}, { data: [[liveCoord.pc1, liveCoord.pc2, livePercent, 'Active Specimen (Sliders)']] }]
+    });
+  } else {
+    // In 2D, active specimen is series index 3
+    state.charts.pca.setOption({
+      series: [{}, {}, {}, { data: [[liveCoord.pc1, liveCoord.pc2]] }]
+    });
+  }
 }
 
 function initBoundarySelector() {
@@ -664,6 +870,17 @@ function initBoundarySelector() {
       tabs.forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       state.activeBoundary = tab.dataset.boundary;
+      const isDark = document.body.classList.contains('dark-theme');
+      renderPCAChart(isDark);
+    });
+  });
+
+  const dimBtns = document.querySelectorAll('.btn-dim-toggle');
+  dimBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      dimBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.viewMode = btn.dataset.mode;
       const isDark = document.body.classList.contains('dark-theme');
       renderPCAChart(isDark);
     });

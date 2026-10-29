@@ -14,8 +14,9 @@
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Apache ECharts CDN -->
+  <!-- Apache ECharts CDN + ECharts GL (3D Support) -->
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/dist/echarts-gl.min.js"></script>
 
   <!-- Core Stylesheet -->
   <link rel="stylesheet" href="style.css">
@@ -409,6 +410,16 @@
             </button>
             <button class="btn-boundary-tab" id="btnBoundDT" data-boundary="tree">
               <i class="fa-solid fa-sitemap text-emerald"></i> Tuned Decision Tree (Orthogonal Cuts)
+            </button>
+          </div>
+
+          <!-- 2D / 3D Dimension Mode Switcher -->
+          <div class="boundary-dimension-toggle">
+            <button class="btn-dim-toggle active" id="btnMode2D" data-mode="2d">
+              <i class="fa-solid fa-chart-area"></i> 2D Latent Space
+            </button>
+            <button class="btn-dim-toggle" id="btnMode3D" data-mode="3d">
+              <i class="fa-solid fa-cube text-cyan"></i> 3D Holographic Manifold
             </button>
           </div>
 
@@ -834,6 +845,8 @@
     </div>
   </footer>
 
+  <!-- Synchronous Embedded Data Payload (Zero-Latency / Offline Support) -->
+  <script src="echarts_payload.js"></script>
   <!-- Core JavaScript -->
   <script src="app.js"></script>
 </body>
