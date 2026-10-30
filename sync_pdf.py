@@ -24,3 +24,4 @@ for attempt in range(5):
             print("[NOTICE] Target file is currently locked by the PDF viewer tab in your editor.")
             print("Please close 'MACSE504_CaseStudy_Report_26MML0045.pdf' in your IDE and re-run this script.")
             sys.exit(2)
+
